@@ -7,12 +7,14 @@ import android.support.v7.app.AppCompatActivity
 
 class SplashActivity : AppCompatActivity() {
 
+    companion object {
+        const val SPLASH_DELAY: Long = 2000
+    }
+
     private var mDelayHandler: Handler? = null
-    private val SPLASH_DELAY: Long = 2000
 
-    internal val mRunnable: Runnable = Runnable {
+    private val mRunnable: Runnable = Runnable {
         if (!isFinishing) {
-
             val intent = Intent(applicationContext, MainActivity::class.java)
             startActivity(intent)
             finish()
@@ -25,17 +27,17 @@ class SplashActivity : AppCompatActivity() {
 
         //Initialize the Handler
         mDelayHandler = Handler()
+    }
 
-        //Navigate with delay
+    override fun onResume() {
+        super.onResume()
         mDelayHandler!!.postDelayed(mRunnable, SPLASH_DELAY)
     }
 
-    public override fun onDestroy() {
-
+    override fun onPause() {
         if (mDelayHandler != null) {
             mDelayHandler!!.removeCallbacks(mRunnable)
         }
-
-        super.onDestroy()
+        super.onPause()
     }
 }
