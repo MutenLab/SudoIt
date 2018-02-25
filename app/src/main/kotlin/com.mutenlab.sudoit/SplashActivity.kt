@@ -22,8 +22,8 @@ class SplashActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.SplashTheme)
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_splash)
 
         //Initialize the Handler
         mDelayHandler = Handler()
@@ -35,9 +35,9 @@ class SplashActivity : AppCompatActivity() {
     }
 
     override fun onPause() {
+        super.onPause()
         if (mDelayHandler != null) {
             mDelayHandler!!.removeCallbacks(mRunnable)
         }
-        super.onPause()
     }
 }
