@@ -22,7 +22,6 @@ class SplashActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(R.style.SplashTheme)
         super.onCreate(savedInstanceState)
 
         //Initialize the Handler
