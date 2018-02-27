@@ -75,9 +75,9 @@ class OcrCaptureActivity : AppCompatActivity() {
         val listener = TextToSpeech.OnInitListener { status ->
             if (status == TextToSpeech.SUCCESS) {
                 Log.d("TTS", "Text to speech engine started successfully.")
-                tts!!.language = Locale.FRENCH
+                tts!!.language = Locale.ENGLISH
             } else {
-                Log.d("TTS", "Error starting the text to speech engine.")
+                Log.e("TTS", "Error starting the text to speech engine.")
             }
         }
         tts = TextToSpeech(this.applicationContext, listener)
@@ -141,8 +141,8 @@ class OcrCaptureActivity : AppCompatActivity() {
 
             // Check for low storage.  If there is low storage, the native library will not be
             // downloaded, so detection will not become operational.
-            val lowstorageFilter = IntentFilter(Intent.ACTION_DEVICE_STORAGE_LOW)
-            val hasLowStorage = registerReceiver(null, lowstorageFilter) != null
+            val lowStorageFilter = IntentFilter(Intent.ACTION_DEVICE_STORAGE_LOW)
+            val hasLowStorage = registerReceiver(null, lowStorageFilter) != null
 
             if (hasLowStorage) {
                 Toast.makeText(this, R.string.low_storage_error, Toast.LENGTH_LONG).show()
@@ -184,7 +184,6 @@ class OcrCaptureActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         mPreview!!.release()
-
     }
 
     /**

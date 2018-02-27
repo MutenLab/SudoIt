@@ -141,7 +141,13 @@ class GraphicOverlay<T : GraphicOverlay.Graphic>(context: Context, attrs: Attrib
             // Get the position of this View so the raw location can be offset relative to the view.
             val location = IntArray(2)
             this.getLocationOnScreen(location)
-            return mGraphics.firstOrNull { it.contains(rawX - location[0], rawY - location[1]) }
+            for (graphic in mGraphics) {
+                if (graphic.contains(rawX - location[0], rawY - location[1])) {
+                    return graphic
+                }
+            }
+            return null
+            //return mGraphics.firstOrNull { it.contains(rawX - location[0], rawY - location[1]) }
         }
     }
 

@@ -72,8 +72,13 @@ class OcrGraphic internal constructor(overlay: GraphicOverlay<*>, val textBlock:
         rect.bottom = translateY(rect.bottom)
         canvas.drawRect(rect, sRectPaint!!)
 
-        // Render the text at the bottom of the box.
-        canvas.drawText(textBlock.value, rect.left, rect.bottom, sTextPaint!!)
+        // Break the text into multiple lines and draw each one according to its own bounding box.
+        val textComponents = textBlock.components
+        for (currentText in textComponents) {
+            val left = translateX(currentText.boundingBox.left.toFloat())
+            val bottom = translateY(currentText.boundingBox.bottom.toFloat())
+            canvas.drawText(currentText.value, left, bottom, sTextPaint)
+        }
     }
 
     companion object {

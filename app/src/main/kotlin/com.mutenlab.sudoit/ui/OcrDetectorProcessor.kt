@@ -11,6 +11,7 @@ import com.mutenlab.sudoit.ui.camera.GraphicOverlay
  * TODO: Make this implement Detector.Processor<TextBlock> and add text to the GraphicOverlay
 </TextBlock> */
 class OcrDetectorProcessor internal constructor(private val mGraphicOverlay: GraphicOverlay<OcrGraphic>) : Detector.Processor<TextBlock> {
+
     override fun receiveDetections(detections: Detector.Detections<TextBlock>) {
         mGraphicOverlay.clear()
         val items = detections.detectedItems
