@@ -52,9 +52,6 @@ import java.util.*
  *
  */
 class CameraSource
-//==============================================================================================
-// Private
-//==============================================================================================
 
 /**
  * Only allow creation via the builder class.
@@ -62,18 +59,17 @@ class CameraSource
 private constructor() {
 
     @StringDef(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE, Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO, Camera.Parameters.FOCUS_MODE_AUTO, Camera.Parameters.FOCUS_MODE_EDOF, Camera.Parameters.FOCUS_MODE_FIXED, Camera.Parameters.FOCUS_MODE_INFINITY, Camera.Parameters.FOCUS_MODE_MACRO)
-    @Retention(RetentionPolicy.SOURCE)
+    @kotlin.annotation.Retention(AnnotationRetention.SOURCE)
     private annotation class FocusMode
 
     @StringDef(Camera.Parameters.FLASH_MODE_ON, Camera.Parameters.FLASH_MODE_OFF, Camera.Parameters.FLASH_MODE_AUTO, Camera.Parameters.FLASH_MODE_RED_EYE, Camera.Parameters.FLASH_MODE_TORCH)
-    @Retention(RetentionPolicy.SOURCE)
+    @kotlin.annotation.Retention(AnnotationRetention.SOURCE)
     private annotation class FlashMode
 
     private var mContext: Context? = null
 
     private val mCameraLock = java.lang.Object()
 
-    // Guarded by mCameraLock
     private var mCamera: Camera? = null
 
     /**
@@ -105,7 +101,7 @@ private constructor() {
     private var mFocusMode: String? = null
     private var mFlashMode: String? = null
 
-    // These instances need to be held onto to avoid GC of their underlying resources.  Even though
+    // These instances need to be held onto to avoid GC of their underlying resources. Even though
     // these aren't used outside of the method that creates them, they still must have hard
     // references maintained to them.
     private var mDummySurfaceView: SurfaceView? = null
@@ -182,8 +178,8 @@ private constructor() {
             // Restrict the requested range to something within the realm of possibility.  The
             // choice of 1000000 is a bit arbitrary -- intended to be well beyond resolutions that
             // devices can support.  We bound this to avoid int overflow in the code later.
-            val MAX = 1000000
-            if (width <= 0 || width > MAX || height <= 0 || height > MAX) {
+            val max = 1000000
+            if (width <= 0 || width > max || height <= 0 || height > max) {
                 throw IllegalArgumentException("Invalid preview size: " + width + "x" + height)
             }
             mCameraSource.mRequestedPreviewWidth = width
@@ -304,15 +300,8 @@ private constructor() {
 
             mCamera = createCamera()
 
-            // SurfaceTexture was introduced in Honeycomb (11), so if we are running and
-            // old version of Android. fall back to use SurfaceView.
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-//                mDummySurfaceTexture = SurfaceTexture(DUMMY_TEXTURE_NAME)
-//                mCamera!!.setPreviewTexture(mDummySurfaceTexture)
-//            } else {
             mDummySurfaceView = SurfaceView(mContext)
             mCamera!!.setPreviewDisplay(mDummySurfaceView!!.holder)
-//            }
             mCamera!!.startPreview()
 
             mProcessingThread = Thread(mFrameProcessor)
@@ -382,18 +371,8 @@ private constructor() {
                 mCamera!!.stopPreview()
                 mCamera!!.setPreviewCallbackWithBuffer(null)
                 try {
-                    // We want to be compatible back to Gingerbread, but SurfaceTexture
-                    // wasn't introduced until Honeycomb.  Since the interface cannot use a
-                    // SurfaceTexture, if the developer wants to display a preview we must use a
-                    // SurfaceHolder.  If the developer doesn't want to display a preview we use a
-                    // SurfaceTexture if we are running at least Honeycomb.
 
-//                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-//                        mCamera!!.setPreviewTexture(null)
-//
-//                    } else {
                     mCamera!!.setPreviewDisplay(null)
-//                    }
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to clear camera preview: " + e)
                 }
@@ -401,39 +380,6 @@ private constructor() {
                 mCamera!!.release()
                 mCamera = null
             }
-        }
-    }
-
-    fun doZoom(scale: Float): Int {
-        synchronized(mCameraLock) {
-            if (mCamera == null) {
-                return 0
-            }
-            var currentZoom = 0
-            val maxZoom: Int
-            val parameters = mCamera!!.parameters
-            if (!parameters.isZoomSupported) {
-                Log.w(TAG, "Zoom is not supported on this device")
-                return currentZoom
-            }
-            maxZoom = parameters.maxZoom
-
-            currentZoom = parameters.zoom + 1
-            val newZoom: Float
-            if (scale > 1) {
-                newZoom = currentZoom + scale * (maxZoom / 10)
-            } else {
-                newZoom = currentZoom * scale
-            }
-            currentZoom = Math.round(newZoom) - 1
-            if (currentZoom < 0) {
-                currentZoom = 0
-            } else if (currentZoom > maxZoom) {
-                currentZoom = maxZoom
-            }
-            parameters.zoom = currentZoom
-            mCamera!!.parameters = parameters
-            return currentZoom
         }
     }
 
@@ -603,10 +549,6 @@ private constructor() {
      */
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     fun setAutoFocusMoveCallback(cb: AutoFocusMoveCallback?): Boolean {
-//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-//            return false
-//        }
-
         synchronized(mCameraLock) {
             if (mCamera != null) {
                 var autoFocusMoveCallback: CameraAutoFocusMoveCallback? = null
@@ -864,8 +806,6 @@ private constructor() {
         val byteArray = ByteArray(bufferSize)
         val buffer = ByteBuffer.wrap(byteArray)
         if (!buffer.hasArray() || buffer.array() != byteArray) {
-            // I don't think that this will ever happen.  But if it does, then we wouldn't be
-            // passing the preview content to the underlying detector later.
             throw IllegalStateException("Failed to create valid buffer for camera source.")
         }
 
@@ -1037,19 +977,19 @@ private constructor() {
         @SuppressLint("InlinedApi")
         val CAMERA_FACING_FRONT = CameraInfo.CAMERA_FACING_FRONT
 
-        private val TAG = "OpenCameraSource"
+        private const val TAG = "OpenCameraSource"
 
         /**
          * The dummy surface texture must be assigned a chosen name.  Since we never use an OpenGL
          * context, we can choose any ID we want here.
          */
-        private val DUMMY_TEXTURE_NAME = 100
+        private const val DUMMY_TEXTURE_NAME = 100
 
         /**
          * If the absolute difference between a preview size aspect ratio and a picture size aspect
          * ratio is less than this tolerance, they are considered to be the same aspect ratio.
          */
-        private val ASPECT_RATIO_TOLERANCE = 0.01f
+        private const val ASPECT_RATIO_TOLERANCE = 0.01f
 
         /**
          * Gets the id for the camera specified by the direction it is facing.  Returns -1 if no such
@@ -1058,7 +998,7 @@ private constructor() {
          */
         private fun getIdForRequestedCamera(facing: Int): Int {
             val cameraInfo = CameraInfo()
-            for (i in 0..Camera.getNumberOfCameras() - 1) {
+            for (i in 0.until(Camera.getNumberOfCameras() - 1)) {
                 Camera.getCameraInfo(i, cameraInfo)
                 if (cameraInfo.facing == facing) {
                     return i
