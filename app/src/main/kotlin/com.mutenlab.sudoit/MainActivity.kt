@@ -4,6 +4,7 @@ import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
+import com.mutenlab.sudoit.ui.CameraActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -11,9 +12,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        var btnStartOcr = findViewById<Button>(R.id.start_ocr)
+        val btnStartOcr = findViewById<Button>(R.id.start_ocr)
         btnStartOcr.setOnClickListener {
-            val intent = Intent(applicationContext, OcrCaptureActivity::class.java)
+            val intent = Intent(applicationContext, CameraActivity::class.java)
             startActivity(intent)
         }
     }
