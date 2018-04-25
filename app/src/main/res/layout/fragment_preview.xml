@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/black"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <TextureView
@@ -9,13 +11,49 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <ImageView
+    <View
+        android:id="@+id/topOverlay"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:src="@drawable/ic_crop_free"/>
+        android:layout_height="wrap_content"
+        android:background="@color/translucent_gray"
+        android:layout_toEndOf="@+id/startOverlay"
+        android:layout_toStartOf="@id/endOverlay"
+        android:layout_above="@+id/scanner"/>
+
+    <View
+        android:id="@+id/startOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/translucent_gray"
+        android:layout_toStartOf="@+id/scanner"/>
+
+    <FrameLayout
+        android:id="@+id/scanner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:layout_width="300dp"
+        tools:layout_height="300dp"
+        android:layout_centerInParent="true"
+        android:background="@drawable/shape_crop_limits"/>
+
+    <View
+        android:id="@+id/endOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/translucent_gray"
+        android:layout_toEndOf="@+id/scanner"/>
+
+    <View
+        android:id="@+id/bottomOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/startOverlay"
+        android:layout_toStartOf="@id/endOverlay"
+        android:background="@color/translucent_gray"
+        android:layout_below="@+id/scanner"/>
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/take_photo"
+        android:id="@+id/takePhotoButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_photo_camera"

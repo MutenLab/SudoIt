@@ -1,7 +1,9 @@
 package com.mutenlab.sudoit.ui
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Point
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.*
 import android.os.Bundle
@@ -15,6 +17,22 @@ import kotlinx.android.synthetic.main.fragment_preview.*
 import pub.devrel.easypermissions.AfterPermissionGranted
 import pub.devrel.easypermissions.EasyPermissions
 import java.util.*
+import kotlin.math.roundToInt
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.opengl.ETC1.getHeight
+import android.opengl.ETC1.getWidth
+import android.provider.MediaStore.Images.Media.getBitmap
+import android.graphics.drawable.BitmapDrawable
+import android.os.Environment
+import android.view.TextureView
+import android.widget.ImageView
+import com.mutenlab.sudoit.R.id.previewTextureView
+import com.mutenlab.sudoit.ui.PreviewFragment.Companion.REQUEST_CAMERA_PERMISSION
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
+
 
 class PreviewFragment : Fragment() {
 
@@ -59,9 +77,7 @@ class PreviewFragment : Fragment() {
     }
 
     private fun previewSession() {
-        val surfaceTexture = previewTextureView.surfaceTexture
-        surfaceTexture.setDefaultBufferSize(MAX_PREVIEW_WIDTH, MAX_PREVIEW_HEIGHT)
-        val surface = Surface(surfaceTexture)
+        val surface = prepareSurface()
 
         captureRequestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
         captureRequestBuilder.addTarget(surface)
@@ -81,6 +97,18 @@ class PreviewFragment : Fragment() {
                     }
 
                 }, null)
+    }
+
+    private fun prepareSurface() : Surface {
+        val surfaceTexture = previewTextureView.surfaceTexture
+        val display = activity?.windowManager?.defaultDisplay
+        val point = Point()
+        display?.getSize(point)
+        val width = point.x * 0.75
+        scanner.layoutParams.width = width.roundToInt()
+        scanner.layoutParams.height = width.roundToInt()
+        surfaceTexture.setDefaultBufferSize(MAX_PREVIEW_WIDTH, MAX_PREVIEW_HEIGHT)
+        return Surface(surfaceTexture)
     }
 
     private fun closeCamera() {
@@ -124,6 +152,7 @@ class PreviewFragment : Fragment() {
         return deviceId[0]
     }
 
+    @SuppressLint("MissingPermission")
     private fun connectCamera() {
         val deviceId = cameraId(CameraCharacteristics.LENS_FACING_BACK)
         Log.d(TAG, "deviceId: $deviceId")
@@ -164,10 +193,37 @@ class PreviewFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        activity?.window?.decorView?.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN or
+        activity?.window?.decorView?.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                View.SYSTEM_UI_FLAG_FULLSCREEN or
                 View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
-                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+
+        takePhotoButton.setOnClickListener({
+            takePhoto()
+        })
+    }
+
+    private fun takePhoto() {
+        val bitmapTextureView = previewTextureView.bitmap
+        val intArray = IntArray(2)
+        scanner.getLocationOnScreen(intArray)
+        val scannerLayoutParams = scanner.layoutParams
+        val cropBitmap = Bitmap.createBitmap(bitmapTextureView, intArray[0], intArray[1],  scannerLayoutParams.width, scannerLayoutParams.height)
+        writeToFile(cropBitmap)
+    }
+    private fun writeToFile(scaledBitmap: Bitmap) {
+        val fileName = Calendar.getInstance().timeInMillis.toString() + ".png"
+        val file = File(Environment.getExternalStorageDirectory(), fileName)
+        file.createNewFile()
+        //Convert bitmap to byte array
+        val bos = ByteArrayOutputStream()
+        scaledBitmap.compress(Bitmap.CompressFormat.PNG, 0 /*ignored for PNG*/, bos)
+
+        //write the bytes in file
+        val fos = FileOutputStream(file)
+        fos.write(bos.toByteArray())
+        fos.flush()
+        fos.close()
     }
 
     override fun onResume() {
