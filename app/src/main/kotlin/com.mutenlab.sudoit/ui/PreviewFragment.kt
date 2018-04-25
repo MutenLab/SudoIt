@@ -1,38 +1,28 @@
 package com.mutenlab.sudoit.ui
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Point
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.*
 import android.os.Bundle
-import android.os.HandlerThread
+import android.os.Environment
 import android.os.Handler
+import android.os.HandlerThread
 import android.support.v4.app.Fragment
 import android.util.Log
 import android.view.*
+import android.view.animation.Animation
+import android.view.animation.TranslateAnimation
 import com.mutenlab.sudoit.R
+import kotlinx.android.synthetic.main.container_preview_mask.*
 import kotlinx.android.synthetic.main.fragment_preview.*
-import pub.devrel.easypermissions.AfterPermissionGranted
-import pub.devrel.easypermissions.EasyPermissions
-import java.util.*
-import kotlin.math.roundToInt
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.opengl.ETC1.getHeight
-import android.opengl.ETC1.getWidth
-import android.provider.MediaStore.Images.Media.getBitmap
-import android.graphics.drawable.BitmapDrawable
-import android.os.Environment
-import android.view.TextureView
-import android.widget.ImageView
-import com.mutenlab.sudoit.R.id.previewTextureView
-import com.mutenlab.sudoit.ui.PreviewFragment.Companion.REQUEST_CAMERA_PERMISSION
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
-
+import java.util.*
+import kotlin.math.roundToInt
 
 class PreviewFragment : Fragment() {
 
@@ -45,6 +35,8 @@ class PreviewFragment : Fragment() {
     private lateinit var captureRequestBuilder: CaptureRequest.Builder
 
     private lateinit var cameraDevice: CameraDevice
+
+    private lateinit var scannerAnimation: Animation
 
     private val deviceStateCallback = object: CameraDevice.StateCallback() {
         override fun onOpened(camera: CameraDevice?) {
@@ -78,6 +70,8 @@ class PreviewFragment : Fragment() {
 
     private fun previewSession() {
         val surface = prepareSurface()
+
+        startScannerBarAnimation()
 
         captureRequestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
         captureRequestBuilder.addTarget(surface)
@@ -166,9 +160,9 @@ class PreviewFragment : Fragment() {
     }
 
     companion object {
-        const val REQUEST_CAMERA_PERMISSION = 100
         private val TAG = PreviewFragment::class.qualifiedName
-        @JvmStatic fun newInstance() = PreviewFragment()
+        @JvmStatic
+        fun newInstance() = PreviewFragment()
     }
 
     private val surfaceListener = object: TextureView.SurfaceTextureListener {
@@ -181,7 +175,7 @@ class PreviewFragment : Fragment() {
 
         override fun onSurfaceTextureAvailable(surface: SurfaceTexture?, width: Int, height: Int) {
             Log.d(TAG, "textureSurface width: $width height: $height")
-            openCamera()
+            connectCamera()
         }
 
     }
@@ -199,8 +193,32 @@ class PreviewFragment : Fragment() {
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
 
         takePhotoButton.setOnClickListener({
+            scannerAnimation.cancel()
             takePhoto()
         })
+    }
+
+    private fun startScannerBarAnimation() {
+        val distance = scanner.layoutParams.height.toFloat() - scannerBar.layoutParams.height.toFloat()
+        scannerAnimation = TranslateAnimation(0f,
+                0f,
+                0f,
+                distance)
+        scannerAnimation.duration = 2000
+        scannerAnimation.repeatMode = Animation.REVERSE
+        scannerAnimation.repeatCount = Animation.INFINITE
+        scannerAnimation.fillAfter = true
+        scannerAnimation.setAnimationListener(object : Animation.AnimationListener {
+            override fun onAnimationStart(animation: Animation) {
+            }
+
+            override fun onAnimationEnd(animation: Animation) {
+                scannerBar.visibility = View.GONE
+            }
+
+            override fun onAnimationRepeat(animation: Animation) {}
+        })
+        scannerBar.startAnimation(scannerAnimation)
     }
 
     private fun takePhoto() {
@@ -213,7 +231,7 @@ class PreviewFragment : Fragment() {
     }
     private fun writeToFile(scaledBitmap: Bitmap) {
         val fileName = Calendar.getInstance().timeInMillis.toString() + ".png"
-        val file = File(Environment.getExternalStorageDirectory(), fileName)
+        val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), fileName)
         file.createNewFile()
         //Convert bitmap to byte array
         val bos = ByteArrayOutputStream()
@@ -224,6 +242,7 @@ class PreviewFragment : Fragment() {
         fos.write(bos.toByteArray())
         fos.flush()
         fos.close()
+        scaledBitmap.recycle()
     }
 
     override fun onResume() {
@@ -231,7 +250,7 @@ class PreviewFragment : Fragment() {
 
         startBackgroundThread()
         if (previewTextureView.isAvailable)
-            openCamera()
+            connectCamera()
         else
             previewTextureView.surfaceTextureListener = surfaceListener
     }
@@ -240,27 +259,5 @@ class PreviewFragment : Fragment() {
         closeCamera()
         stopBackgroundThread()
         super.onPause()
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        EasyPermissions.onRequestPermissionsResult(requestCode, permissions ,grantResults)
-    }
-
-    @AfterPermissionGranted(REQUEST_CAMERA_PERMISSION)
-    private fun checkCameraPermission() {
-        if (EasyPermissions.hasPermissions(activity!!, Manifest.permission.CAMERA)) {
-            Log.d(TAG, "App has camera permission")
-            connectCamera()
-        } else {
-            EasyPermissions.requestPermissions(activity!!,
-                    getString(R.string.camera_request_rationale),
-                    REQUEST_CAMERA_PERMISSION,
-                    Manifest.permission.CAMERA)
-        }
-    }
-
-    private fun openCamera() {
-        checkCameraPermission()
     }
 }

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/topOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/scanner"
+        android:layout_toEndOf="@+id/startOverlay"
+        android:layout_toStartOf="@id/endOverlay"
+        android:background="@color/translucent_black"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="@string/camera_tip"
+            android:textAlignment="center"
+            android:textColor="@color/translucent_white_smoke"
+            android:textSize="22sp" />
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/startOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toStartOf="@+id/scanner"
+        android:background="@color/translucent_black" />
+
+    <RelativeLayout
+        android:id="@+id/scanner"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_centerInParent="true"
+        android:background="@drawable/shape_crop_limits"
+        tools:layout_height="300dp"
+        tools:layout_width="300dp">
+
+        <View
+            android:id="@+id/scannerBar"
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
+            android:background="@color/colorAccent" />
+
+    </RelativeLayout>
+
+    <View
+        android:id="@+id/endOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/scanner"
+        android:background="@color/translucent_black" />
+
+    <View
+        android:id="@+id/bottomOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/scanner"
+        android:layout_toEndOf="@+id/startOverlay"
+        android:layout_toStartOf="@id/endOverlay"
+        android:background="@color/translucent_black" />
+
+</RelativeLayout>
