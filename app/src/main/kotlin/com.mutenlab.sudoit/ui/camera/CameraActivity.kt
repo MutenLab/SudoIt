@@ -1,4 +1,4 @@
-package com.mutenlab.sudoit.ui
+package com.mutenlab.sudoit.ui.camera
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -10,9 +10,7 @@ class CameraActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_camera)
-
-        val fragment = PreviewFragment.newInstance()
-        addFragment(fragment)
+        addFragment(CameraFragment.newInstance())
     }
 
     private fun addFragment(fragment: Fragment?) {
@@ -20,5 +18,4 @@ class CameraActivity : AppCompatActivity() {
         fragmentTransaction.add(R.id.fragmentContainer, fragment)
         fragmentTransaction.commit()
     }
-
 }

@@ -29,7 +29,7 @@
             android:name=".MainActivity"/>
         <activity
             android:screenOrientation="portrait"
-            android:name=".ui.CameraActivity"/>
+            android:name=".ui.camera.CameraActivity"/>
     </application>
 
 </manifest>

@@ -9,7 +9,7 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.widget.Button
 import android.widget.Toast
-import com.mutenlab.sudoit.ui.CameraActivity
+import com.mutenlab.sudoit.ui.camera.CameraActivity
 import com.mutenlab.sudoit.utils.PermissionHelper
 
 class MainActivity : AppCompatActivity() {

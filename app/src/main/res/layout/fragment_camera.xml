@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <include layout="@layout/container_preview_mask" />
+    <include layout="@layout/container_camera_mask" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/takePhotoButton"
