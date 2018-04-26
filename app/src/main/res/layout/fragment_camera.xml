@@ -23,4 +23,13 @@
         app:backgroundTint="@color/colorAccentDark"
         app:fabCustomSize="62dp" />
 
+
+    <ToggleButton
+        android:id="@+id/toggle_flash"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:text="Flash" />
+
 </RelativeLayout>
