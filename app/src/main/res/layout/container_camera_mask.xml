@@ -65,4 +65,10 @@
         android:layout_toStartOf="@id/endOverlay"
         android:background="@color/translucent_black" />
 
+    <ImageView
+        android:id="@+id/test"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
+
 </RelativeLayout>

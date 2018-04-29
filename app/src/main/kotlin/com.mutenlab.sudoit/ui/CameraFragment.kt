@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.graphics.Point
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.*
@@ -12,23 +11,22 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
 import android.os.HandlerThread
-import android.support.v4.app.BundleCompat
 import android.support.v4.app.Fragment
 import android.util.Log
 import android.view.*
 import android.view.animation.Animation
 import android.view.animation.TranslateAnimation
 import com.mutenlab.sudoit.R
+import com.mutenlab.sudoit.image.ImgManipulation
+import com.mutenlab.sudoit.model.SudokuSolver
 import com.mutenlab.sudoit.solver.SolverActivity
+import kotlinx.android.synthetic.main.container_camera_mask.*
+import kotlinx.android.synthetic.main.fragment_camera.*
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.util.*
 import kotlin.math.roundToInt
-import kotlinx.android.synthetic.main.fragment_camera.*
-import kotlinx.android.synthetic.main.container_camera_mask.*
-import com.mutenlab.sudoit.model.SudokuSolver
-import com.mutenlab.sudoit.image.ImgManipulation
 
 
 
@@ -138,9 +136,9 @@ class CameraFragment : Fragment() {
         val scannerLayoutParams = scanner.layoutParams
         val cropBitmap = Bitmap.createBitmap(bitmapTextureView, intArray[0], intArray[1], scannerLayoutParams.width, scannerLayoutParams.height)
 
-        val imgManip = ImgManipulation(activity?.applicationContext,
+        val imgManip = ImgManipulation(activity,
                 cropBitmap)
-        val unsolved = imgManip.sudokuGridNums
+        val unsolved = imgManip.getSudokuGridNums(test)
 
         if (unsolved == null || imgManip.error) {
             //mRectView.setPaintColor(Color.RED)

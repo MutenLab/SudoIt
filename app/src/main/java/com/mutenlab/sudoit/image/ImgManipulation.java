@@ -3,20 +3,24 @@ package com.mutenlab.sudoit.image;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
-
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.core.Rect;
-import org.opencv.imgproc.Imgproc;
+import android.view.View;
+import android.widget.ImageView;
 
 import com.mutenlab.sudoit.image.ccl.ConnectedComponentLabel;
 import com.mutenlab.sudoit.model.ImgManipUtil;
 import com.mutenlab.sudoit.model.TessOCR;
+
+import org.opencv.core.Core;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Rect;
+import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Queue;
 
 public class ImgManipulation {
 
@@ -47,7 +51,7 @@ public class ImgManipulation {
     /**
      * performs all the required image processing to find sudoku grid numbers
      */
-    public int[][] getSudokuGridNums() {
+    public int[][] getSudokuGridNums(ImageView imageView) {
         clean = ImgManipUtil.bitmapToMat(mBitmap);
         Mat result = extractSudokuGrid(clean);
         if (error) {
@@ -55,20 +59,18 @@ public class ImgManipulation {
         }
 
         Imgproc.cvtColor(clean, clean, Imgproc.COLOR_BGR2GRAY);
+        Imgproc.GaussianBlur(clean, clean, new Size(11,11), 0);
         ImgManipUtil.adaptiveThreshold(clean);
+        Core.bitwise_not(clean, clean);
 
         // start new
         ConnectedComponentLabel ccl = new ConnectedComponentLabel();
         byte[][] cleanByteArray = ccl.getByteArrayForOCR(clean);
 
-        //FileSaver.storeImage(ImgManipUtil.matToBitmap(byteArrayToMat(cleanByteArray)),"byte");
-
         mOCR.initOCR();
         String ans = mOCR.doOCR(cleanByteArray);
         Log.d("testting ans", ans);
-        // end new
 
-        //FileSaver.storeImage(ImgManipUtil.matToBitmap(clean), "threshold");
         ImgManipUtil.dilateMat(result, 4);
         ImgManipUtil.binaryThreshold(result);
 
@@ -76,7 +78,9 @@ public class ImgManipulation {
         Queue<Mat> listmats = mBlobExtract.findCleanNumbers(clean,
                 boundingRects);
         Mat rectMat = mBlobExtract.drawRectsToMat(clean, boundingRects);
-        //FileSaver.storeImage(ImgManipUtil.matToBitmap(rectMat), "blobext");
+
+        imageView.setImageBitmap(ImgManipUtil.matToBitmap(clean));
+        imageView.setVisibility(View.VISIBLE);
 
         boolean[][] containNums = findNumTiles(rectMat, boundingRects);
         int containCount = 0;
@@ -169,8 +173,7 @@ public class ImgManipulation {
      * performs OpenCV image manipulations to extract and undistort sudoku
      * puzzle from image
      *
-     * @param bitmap
-     *            source bitmap
+     * @param mat source mat
      * @return Mat image of fixed puzzle
      */
     public Mat extractSudokuGrid(Mat mat) {
@@ -329,8 +332,6 @@ public class ImgManipulation {
      *
      * @param matarray
      *            array containing pixel info for mat
-     * @param ratio
-     *            percentage of the tile that must be white
      * @param xBound
      *            from 0 to 8 the number of the tile
      * @param yBound
