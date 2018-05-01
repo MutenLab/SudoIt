@@ -17,7 +17,6 @@ import android.view.animation.Animation
 import android.view.animation.TranslateAnimation
 import com.mutenlab.sudoit.R
 import com.mutenlab.sudoit.image.ImgManipulation
-import com.mutenlab.sudoit.model.SudokuSolver
 import com.mutenlab.sudoit.solver.SolverActivity
 import kotlinx.android.synthetic.main.container_camera_mask.*
 import kotlinx.android.synthetic.main.fragment_camera.*
@@ -140,22 +139,15 @@ class CameraFragment : Fragment() {
 
         val imgManip = ImgManipulation(activity,
                 cropBitmap)
-        val unsolved = imgManip.getSudokuGridNums(test)
+        val unsolved = imgManip.processImage(test)
 
-        if (unsolved == null || imgManip.error) {
-            //mRectView.setPaintColor(Color.RED)
-            Log.d("getSudokuGridNums Error", "returned null")
-        } else {
-            val solved = SudokuSolver.solveSudoku(unsolved)
-            //mRectView.setPaintColor(Color.GREEN)
-            //startSolverActivity(unsolved, solved)
-        }
+        startSolverActivity(unsolved)
+
     }
 
-    private fun startSolverActivity(unsolved: Array<IntArray>, solved: Array<IntArray>) {
+    private fun startSolverActivity(unsolved: Array<Array<Int>>) {
         val bundle = Bundle()
-		bundle.putIntArray("unsolved", toArray(unsolved))
-		bundle.putIntArray("solved", toArray(solved))
+		bundle.putSerializable("Puzzle", unsolved)
 
 		val intent = Intent(activity, SolverActivity::class.java);
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -164,7 +156,7 @@ class CameraFragment : Fragment() {
         activity?.finish()
     }
 
-    private fun toArray(input: Array<IntArray>): IntArray {
+    private fun toArray(input: Array<Array<Int>>): IntArray {
         val output = IntArray(input[0].size * input.size)
         var index = 0
         for (y in input.indices) {

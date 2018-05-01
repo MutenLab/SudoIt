@@ -1,12 +1,12 @@
-package com.mutenlab.sudoit.model;
+package com.mutenlab.sudoit.common;
 
 /**
  * @author Ivan Cerrate.
  */
 public class Vector {
 
-    double rho;
-    double theta;
+    public double rho;
+    public double theta;
 
     public Vector(double rho, double theta) {
         this.rho = rho;

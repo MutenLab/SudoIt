@@ -1,10 +1,7 @@
-package com.mutenlab.sudoit.model;
+package com.mutenlab.sudoit.common;
 
 import org.opencv.core.Point;
 
-/**
- * @author Ivan Cerrate.
- */
 public class PuzzleOutLine {
     public Point bottomLeft;
     public Point bottomRight;

@@ -6,11 +6,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.mutenlab.sudoit.common.Line;
+import com.mutenlab.sudoit.common.PuzzleOutLine;
+import com.mutenlab.sudoit.common.PuzzleScanner;
+import com.mutenlab.sudoit.common.Vector;
 import com.mutenlab.sudoit.model.ImgManipUtil;
-import com.mutenlab.sudoit.model.Line;
-import com.mutenlab.sudoit.model.PuzzleOutLine;
 import com.mutenlab.sudoit.model.TessOCR;
-import com.mutenlab.sudoit.model.Vector;
 
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -20,6 +21,7 @@ import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.utils.Converters;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +32,6 @@ public class ImgManipulation {
     private final float CONST_RATIO = (float) 0.03;
     private Bitmap mBitmap;
     private Mat clean;
-    private BlobExtract mBlobExtract;
     private TessOCR mOCR;
     private boolean error = false;
 
@@ -43,12 +44,24 @@ public class ImgManipulation {
 
     public ImgManipulation(Context context, Bitmap bitmap) {
         mBitmap = bitmap;
-        mBlobExtract = new BlobExtract();
         mOCR = new TessOCR(context);
     }
 
     public boolean getError() {
         return error;
+    }
+
+    public Integer[][] processImage(ImageView imageView) {
+        try {
+            PuzzleScanner puzzleScanner = new PuzzleScanner(mBitmap, imageView.getContext());
+            //Bitmap extractedPuzzle = puzzleScanner.extractPuzzle();
+            //imageView.setImageBitmap(extractedPuzzle);
+            //imageView.setVisibility(View.VISIBLE);
+            return puzzleScanner.getPuzzle();
+        } catch (Exception ex) {
+            Log.e(null, "Error extracting puzzle", ex);
+        }
+        return null;
     }
 
     /**
@@ -66,6 +79,7 @@ public class ImgManipulation {
         Mat largestBlobMat = findLargestBlob(thresholdMat);
         Mat houghLinesMat = generateHoughLinesMat(largestBlobMat);
         Mat outlineMat = generateOutlineMat(greyMat, largestBlobMat, houghLinesMat);
+        //Mat extractedPuzzleMat = generateExtractedPuzzleMat(thresholdMat, largestBlobMat,);
 
         imageView.setImageBitmap(ImgManipUtil.matToBitmap(outlineMat));
         imageView.setVisibility(View.VISIBLE);
@@ -74,6 +88,63 @@ public class ImgManipulation {
                 {8,0,0,0,6,0,0,0,3}, {4,0,0,8,0,3,0,0,1}, {7,0,0,0,2,0,0,0,6}, {0,6,0,0,0,0,2,8,0}, {0,0,0,4,1,9,0,0,5}, {0,0,0,0,8,0,0,7,9}};
 
         return test_sudo;
+    }
+
+    private Mat generateExtractedPuzzleMat(Mat thresholdMat, Mat largestBlobMat, PuzzleOutLine puzzleOutline) {
+        Mat extractedPuzzleMat = thresholdMat.clone();
+        removeOutline(thresholdMat, largestBlobMat, extractedPuzzleMat);
+        correctPerspective(puzzleOutline, extractedPuzzleMat);
+        return extractedPuzzleMat;
+    }
+
+    private void removeOutline(Mat thresholdMat, Mat largestBlobMat, Mat extractedPuzzleMat) {
+        int height = thresholdMat.height();
+        int width = thresholdMat.width();
+        for (int y = 0; y < height; y++) {
+            Mat row = largestBlobMat.row(y);
+            for (int x = 0; x < width; x++) {
+                double[] value = row.get(0, x);
+                Point currentPoint = new Point(x, y);
+                if (value[0] > 128) {
+                    Mat blackMask = new Mat(height + 2, width + 2, CvType.CV_8U, new Scalar(0, 0, 0));
+                    Imgproc.floodFill(extractedPuzzleMat, blackMask, currentPoint, new Scalar(0));
+                    return;
+                }
+            }
+        }
+    }
+
+    private void correctPerspective(PuzzleOutLine puzzleOutline, Mat extractedPuzzleMat) {
+        double size = puzzleOutline.getSize();
+
+        Mat outputMat = new Mat((int) size, (int) size, CvType.CV_8U);
+
+        List<Point> source = new ArrayList<Point>();
+        source.add(puzzleOutline.bottomLeft);
+        source.add(puzzleOutline.topLeft);
+        source.add(puzzleOutline.topRight);
+        source.add(puzzleOutline.bottomRight);
+        Mat startM = Converters.vector_Point2f_to_Mat(source);
+
+        Point bottomLeft = new Point(0, 0);
+        Point topLeft = new Point(0, size);
+        Point topRight = new Point(size, size);
+        Point bottomRight = new Point(size, 0);
+        List<Point> dest = new ArrayList<Point>();
+        dest.add(bottomLeft);
+        dest.add(topLeft);
+        dest.add(topRight);
+        dest.add(bottomRight);
+        Mat endM = Converters.vector_Point2f_to_Mat(dest);
+
+        Mat perspectiveTransform = Imgproc.getPerspectiveTransform(startM, endM);
+
+        Imgproc.warpPerspective(extractedPuzzleMat,
+                outputMat,
+                perspectiveTransform,
+                new Size(size, size),
+                Imgproc.INTER_CUBIC);
+        extractedPuzzleMat = outputMat;
     }
 
     private Mat generateOutlineMat(Mat greyMat, Mat largestBlobMat, Mat houghLinesMat) {

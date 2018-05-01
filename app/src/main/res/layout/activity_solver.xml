@@ -4,15 +4,17 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <ImageView
-        android:id="@+id/test"
+    <Button
+        android:id="@+id/SolvePuzzleButton"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:onClick="SolvePuzzle"
+        android:text="Solve Puzzle" />
 
-<LinearLayout
-    android:id="@+id/sudokuLinear"
+<GridView
+    android:id="@+id/sudokuGrid"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" />
+    android:numColumns="9"/>
 
 </LinearLayout>

@@ -23,10 +23,10 @@ public class SudokuView extends View {
     private float rectDimens;
     private float width, height;
 
-    private int[][] mSolved;
-    private int[][] mUnsolved;
+    private Integer[][] mSolved;
+    private Integer[][] mUnsolved;
 
-    public SudokuView(Context context, int[][] unsolved, int[][] solved) {
+    public SudokuView(Context context, Integer[][] unsolved, Integer[][] solved) {
         super(context);
         mSolved = solved;
         mUnsolved = unsolved;
@@ -103,13 +103,14 @@ public class SudokuView extends View {
                 float y = top + tileHeight * j + tileHeight / 2 - offset;
 
                 // if it an original number, then draw with bold font
-                if (mUnsolved[i][j] != 0) {
+                if (mUnsolved[i][j] != null && mUnsolved[i][j] != 0) {
                     canvas.drawText(Integer.toString(mSolved[i][j]), x, y,
                             mTextBold);
                     // if it is part of solution, then draw with regular grey
                     // font
                 } else {
-                    canvas.drawText(Integer.toString(mSolved[i][j]), x, y,
+                    String text = mSolved[i][j] != null ? Integer.toString(mSolved[i][j]) : "0";
+                    canvas.drawText(text, x, y,
                             mTextNormal);
                 }
             }

@@ -2,82 +2,47 @@ package com.mutenlab.sudoit.solver;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.widget.LinearLayout;
+import android.view.View;
+import android.widget.GridView;
 
 import com.mutenlab.sudoit.R;
-import com.mutenlab.sudoit.common.SudokuView;
-
-import org.opencv.android.BaseLoaderCallback;
-import org.opencv.android.LoaderCallbackInterface;
-import org.opencv.android.OpenCVLoader;
+import com.mutenlab.sudoit.common.Puzzle;
+import com.mutenlab.sudoit.common.PuzzleAdaptor;
+import com.mutenlab.sudoit.common.Solver;
 
 public class SolverActivity extends AppCompatActivity {
 
-    static {
-        OpenCVLoader.initDebug();
-    }
-
     private static final String TAG = SolverActivity.class.getCanonicalName();
 
-    private Bundle bundle;
-
-    private int[][] unsolved;
-
-    private int[][] solved;
-
-    private LinearLayout sudokuLinear;
-
-    private SudokuView mSudokuView;
-
-    private BaseLoaderCallback  mLoaderCallback = new BaseLoaderCallback(this) {
-        @Override
-        public void onManagerConnected(int status) {
-            switch (status) {
-                case LoaderCallbackInterface.SUCCESS:
-                    Log.i(TAG, "OpenCV loaded successfully");
-                    unsolved = to2DArray(bundle.getIntArray("unsolved"));
-                    solved = to2DArray(bundle.getIntArray("solved"));
-
-                    mSudokuView = new SudokuView(getApplicationContext(), unsolved, solved);
-                    sudokuLinear.addView(mSudokuView);
-                    break;
-                default:
-                    super.onManagerConnected(status);
-                    break;
-            }
-        }
-    };
+    private Puzzle puzzle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_solver);
-        sudokuLinear = findViewById(R.id.sudokuLinear);
-        bundle = getIntent().getExtras();
+        initPuzzleOrGetFromExtras();
+        updatePuzzle(puzzle);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (!OpenCVLoader.initDebug()) {
-            Log.d(TAG, "Internal OpenCV library not found. Using OpenCV Manager for initialization");
-            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION, this, mLoaderCallback);
+    private void initPuzzleOrGetFromExtras() {
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null && bundle.get("Puzzle") != null) {
+            puzzle = new Puzzle((Integer[][]) bundle.get("Puzzle"));
         } else {
-            Log.d(TAG, "OpenCV library found inside package. Using it!");
-            mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
+            puzzle = new Puzzle();
         }
     }
 
-    private int[][] to2DArray(int[] input) {
-        int index = 0;
-        int[][] output = new int[9][9];
-        for (int i = 0; i < 9; i++) {
-            for (int j = 0; j < 9; j++) {
-                output[i][j] = input[index];
-                index++;
-            }
-        }
-        return output;
+    public void SolvePuzzle(View v) throws Exception {
+        Solver puzzleSolver = new Solver(this.puzzle);
+        Puzzle solvedPuzzle = puzzleSolver.solvePuzzle();
+        updatePuzzle(solvedPuzzle);
+    }
+
+    public void updatePuzzle(Puzzle puzzle) {
+        this.puzzle = puzzle;
+        GridView gridView = (GridView) findViewById(R.id.sudokuGrid);
+        PuzzleAdaptor puzzleAdapter = new PuzzleAdaptor(this, this.puzzle);
+        gridView.setAdapter(puzzleAdapter);
     }
 }
