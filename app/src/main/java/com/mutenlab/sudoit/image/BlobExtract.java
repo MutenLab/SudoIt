@@ -62,9 +62,6 @@ public class BlobExtract {
                 boundRects.add(rect);
             }
         }
-        // Mat image = drawRectsToMat(m, boundRects);
-        // FileSaver.storeImage(ImgManipUtil.matToBitmap(image),
-        // "testBlobextract");
         Log.d("rect count", boundRects.size() + "");
         return boundRects;
     }

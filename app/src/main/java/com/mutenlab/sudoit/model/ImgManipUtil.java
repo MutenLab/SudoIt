@@ -5,11 +5,7 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.util.Log;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.opencv.android.Utils;
-import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -17,6 +13,9 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.utils.Converters;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ImgManipUtil {
 
@@ -100,8 +99,8 @@ public class ImgManipUtil {
 
     public static void adaptiveThreshold(Mat mat) {
         Imgproc.adaptiveThreshold(mat, mat, 255,
-                Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY_INV,
-                11, 2);
+                Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY,
+                5, 2);
 
     }
 

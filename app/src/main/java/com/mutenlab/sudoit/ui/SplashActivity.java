@@ -33,7 +33,7 @@ public class SplashActivity extends Activity {
         private static final String TRAINED_DATA_DIRECTORY = "tessdata/";
         private static final String TRAINED_DATA_FILENAME = "eng.traineddata";
         private final String DATA_PATH = Environment
-                .getExternalStorageDirectory()
+                .getExternalStorageDirectory().toString()
                 + "/Android/data/"
                 + mContext.getPackageName() + "/Files/";
         private static final String TAG_DIR_CREATE_SUCCESS = "directory created success";

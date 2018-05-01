@@ -8,7 +8,6 @@ import android.graphics.Point
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.*
 import android.os.Bundle
-import android.os.Environment
 import android.os.Handler
 import android.os.HandlerThread
 import android.support.v4.app.Fragment
@@ -22,9 +21,6 @@ import com.mutenlab.sudoit.model.SudokuSolver
 import com.mutenlab.sudoit.solver.SolverActivity
 import kotlinx.android.synthetic.main.container_camera_mask.*
 import kotlinx.android.synthetic.main.fragment_camera.*
-import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.FileOutputStream
 import java.util.*
 import kotlin.math.roundToInt
 
@@ -134,7 +130,13 @@ class CameraFragment : Fragment() {
         val intArray = IntArray(2)
         scanner.getLocationOnScreen(intArray)
         val scannerLayoutParams = scanner.layoutParams
-        val cropBitmap = Bitmap.createBitmap(bitmapTextureView, intArray[0], intArray[1], scannerLayoutParams.width, scannerLayoutParams.height)
+
+        val display = activity?.windowManager?.defaultDisplay
+        val point = Point()
+        display?.getSize(point)
+        val width = point.x * 0
+
+        val cropBitmap = Bitmap.createBitmap(bitmapTextureView, intArray[0]-width.toInt(), intArray[1]-width.toInt(), scannerLayoutParams.width+width.toInt()+width.toInt(), scannerLayoutParams.height+width.toInt()+width.toInt())
 
         val imgManip = ImgManipulation(activity,
                 cropBitmap)
@@ -146,25 +148,8 @@ class CameraFragment : Fragment() {
         } else {
             val solved = SudokuSolver.solveSudoku(unsolved)
             //mRectView.setPaintColor(Color.GREEN)
-            startSolverActivity(unsolved, solved)
+            //startSolverActivity(unsolved, solved)
         }
-    }
-    private fun writeToFile(scaledBitmap: Bitmap) : String {
-        val fileName = Calendar.getInstance().timeInMillis.toString() + ".png"
-        val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), fileName)
-        file.createNewFile()
-        //Convert bitmap to byte array
-        val bos = ByteArrayOutputStream()
-        scaledBitmap.compress(Bitmap.CompressFormat.PNG, 0 /*ignored for PNG*/, bos)
-
-        //write the bytes in file
-        val fos = FileOutputStream(file)
-        fos.write(bos.toByteArray())
-        fos.flush()
-        fos.close()
-        scaledBitmap.recycle()
-
-        return fileName
     }
 
     private fun startSolverActivity(unsolved: Array<IntArray>, solved: Array<IntArray>) {

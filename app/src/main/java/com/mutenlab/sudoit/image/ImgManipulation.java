@@ -6,15 +6,18 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.mutenlab.sudoit.image.ccl.ConnectedComponentLabel;
 import com.mutenlab.sudoit.model.ImgManipUtil;
+import com.mutenlab.sudoit.model.Line;
+import com.mutenlab.sudoit.model.PuzzleOutLine;
 import com.mutenlab.sudoit.model.TessOCR;
+import com.mutenlab.sudoit.model.Vector;
 
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
@@ -53,58 +56,235 @@ public class ImgManipulation {
      */
     public int[][] getSudokuGridNums(ImageView imageView) {
         clean = ImgManipUtil.bitmapToMat(mBitmap);
-        Mat result = extractSudokuGrid(clean);
+
         if (error) {
             return null;
         }
 
-        Imgproc.cvtColor(clean, clean, Imgproc.COLOR_BGR2GRAY);
+        Mat greyMat = generateGreyMat(clean);
+        Mat thresholdMat = generateThresholdMat(greyMat);
+        Mat largestBlobMat = findLargestBlob(thresholdMat);
+        Mat houghLinesMat = generateHoughLinesMat(largestBlobMat);
+        Mat outlineMat = generateOutlineMat(greyMat, largestBlobMat, houghLinesMat);
+
+        imageView.setImageBitmap(ImgManipUtil.matToBitmap(outlineMat));
+        imageView.setVisibility(View.VISIBLE);
+
+        int[][] test_sudo = {{5,3,0,0,7,0,0,0,0}, {6,0,0,1,9,5,0,0,0}, {0,9,8,0,0,0,0,6,0},
+                {8,0,0,0,6,0,0,0,3}, {4,0,0,8,0,3,0,0,1}, {7,0,0,0,2,0,0,0,6}, {0,6,0,0,0,0,2,8,0}, {0,0,0,4,1,9,0,0,5}, {0,0,0,0,8,0,0,7,9}};
+
+        return test_sudo;
+    }
+
+    private Mat generateOutlineMat(Mat greyMat, Mat largestBlobMat, Mat houghLinesMat) {
+        Mat outLineMat = greyMat.clone();
+        PuzzleOutLine location = findOutLine(largestBlobMat, houghLinesMat);
+
+        Imgproc.drawMarker(outLineMat, location.topLeft, new Scalar(64), Imgproc.MARKER_TILTED_CROSS, 30, 10, 8);
+        Imgproc.drawMarker(outLineMat, location.topRight, new Scalar(64), Imgproc.MARKER_TILTED_CROSS, 30, 10, 8);
+        Imgproc.drawMarker(outLineMat, location.bottomLeft, new Scalar(64), Imgproc.MARKER_TILTED_CROSS, 30, 10, 8);
+        Imgproc.drawMarker(outLineMat, location.bottomRight, new Scalar(64), Imgproc.MARKER_TILTED_CROSS, 30, 10, 8);
+
+        Imgproc.line(outLineMat, location.top.origin, location.top.destination, new Scalar(64));
+        Imgproc.line(outLineMat, location.bottom.origin, location.bottom.destination, new Scalar(127));
+        Imgproc.line(outLineMat, location.left.origin, location.left.destination, new Scalar(64));
+        Imgproc.line(outLineMat, location.right.origin, location.right.destination, new Scalar(127));
+
+        return outLineMat;
+    }
+
+    public PuzzleOutLine findOutLine(Mat largestBlobMat, Mat houghLinesMat) {
+
+        PuzzleOutLine location = new PuzzleOutLine();
+
+        int height = largestBlobMat.height();
+        int width = largestBlobMat.width();
+
+        int countHorizontalLines = 0;
+        int countVerticalLines = 0;
+
+        List<Line> houghLines = getHoughLines(houghLinesMat);
+
+        for (Line line : houghLines) {
+            if (line.getOrientation() == Line.Orientation.horizontal) {
+                countHorizontalLines++;
+
+                if (location.top == null) {
+                    location.top = line;
+                    location.bottom = line;
+                    continue;
+                }
+
+                if (line.getAngleFromXAxis() > 6)
+                    continue;
+                if (line.getAngleFromXAxis() < 1 && (line.getMinY() < 5 || line.getMaxY() > height - 5))
+                    continue;
+
+                if (line.getMinY() < location.bottom.getMinY())
+                    location.bottom = line;
+                if (line.getMaxY() > location.top.getMaxY())
+                    location.top = line;
+            } else if (line.getOrientation() == Line.Orientation.vertical) {
+                countVerticalLines++;
+
+                if (location.left == null) {
+                    location.left = line;
+                    location.right = line;
+                    continue;
+                }
+
+                if (line.getAngleFromXAxis() < 84)
+                    continue;
+                if (line.getAngleFromXAxis() > 89 && (line.getMinX() < 5 || line.getMaxX() > width - 5))
+                    continue;
+
+                if (line.getMinX() < location.left.getMinX())
+                    location.left = line;
+                if (line.getMaxX() > location.right.getMaxX())
+                    location.right = line;
+            }
+        }
+
+        if (houghLines.size() < 4) {
+            //throw new PuzzleNotFoundException("not enough possible edges found. Need at least 4 for a rectangle.");
+        }
+        if (countHorizontalLines < 2) {
+            //throw new PuzzleNotFoundException("not enough horizontal edges found. Need at least 2 for a rectangle.");
+        }
+        if (countVerticalLines < 2) {
+            //throw new PuzzleNotFoundException("not enough vertical edges found. Need at least 2 for a rectangle.");
+        }
+
+        location.topLeft = location.top.findIntersection(location.left);
+        if (location.topLeft == null) {
+            //throw new PuzzleNotFoundException("Cannot find top left corner");
+        }
+
+        location.topRight = location.top.findIntersection(location.right);
+        if (location.topRight == null) {
+            //throw new PuzzleNotFoundException("Cannot find top right corner");
+        }
+
+        location.bottomLeft = location.bottom.findIntersection(location.left);
+        if (location.topLeft == null) {
+            //throw new PuzzleNotFoundException("Cannot find bottom left corner");
+         }
+
+        location.bottomRight = location.bottom.findIntersection(location.right);
+        if (location.topLeft == null) {
+            //throw new PuzzleNotFoundException("Cannot find bottom right corner");
+        }
+
+        return location;
+    }
+
+    private Mat generateGreyMat(Mat cleanMat) {
+        Mat greyMat = cleanMat.clone();
+        Imgproc.cvtColor(greyMat, greyMat, Imgproc.COLOR_BGR2GRAY);
+        return greyMat;
+    }
+
+
+    private Mat generateThresholdMat(Mat greyMat) {
+
+        /*Imgproc.cvtColor(clean, clean, Imgproc.COLOR_BGR2GRAY);
         Imgproc.GaussianBlur(clean, clean, new Size(11,11), 0);
         ImgManipUtil.adaptiveThreshold(clean);
         Core.bitwise_not(clean, clean);
+        ImgManipUtil.dilateMat(clean, 3);
+        ImgManipUtil.binaryThreshold(clean);*/
 
-        // start new
-        ConnectedComponentLabel ccl = new ConnectedComponentLabel();
-        byte[][] cleanByteArray = ccl.getByteArrayForOCR(clean);
+        Mat thresholdMat = greyMat.clone();
+        Imgproc.adaptiveThreshold(thresholdMat, thresholdMat, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C, Imgproc.THRESH_BINARY, 7, 5);
+        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ERODE, new Size(2, 2));
+        Imgproc.erode(thresholdMat, thresholdMat, kernel);
+        Mat kernelDil = Imgproc.getStructuringElement(Imgproc.MORPH_DILATE, new Size(2, 2));
+        Imgproc.dilate(thresholdMat, thresholdMat, kernelDil);
+        Core.bitwise_not(thresholdMat, thresholdMat);
 
-        mOCR.initOCR();
-        String ans = mOCR.doOCR(cleanByteArray);
-        Log.d("testting ans", ans);
+        return thresholdMat;
+    }
 
-        ImgManipUtil.dilateMat(result, 4);
-        ImgManipUtil.binaryThreshold(result);
+    private Mat generateHoughLinesMat(Mat largestBlobMat) {
 
-        List<Rect> boundingRects = mBlobExtract.getBoundingRects(result);
-        Queue<Mat> listmats = mBlobExtract.findCleanNumbers(clean,
-                boundingRects);
-        Mat rectMat = mBlobExtract.drawRectsToMat(clean, boundingRects);
+        Mat houghLinesMat = largestBlobMat.clone();
 
-        imageView.setImageBitmap(ImgManipUtil.matToBitmap(clean));
-        imageView.setVisibility(View.VISIBLE);
+        List<Line> houghLines = getHoughLines(largestBlobMat);
+        for (Line line : houghLines) {
+            Imgproc.line(houghLinesMat, line.origin, line.destination, new Scalar(64));
+        }
+        return houghLinesMat;
+    }
+    private List<Line> getHoughLines(Mat largestBlobMat) {
+        Mat linesMat = largestBlobMat.clone();
+        int width = largestBlobMat.width();
+        int height = largestBlobMat.height();
 
-        boolean[][] containNums = findNumTiles(rectMat, boundingRects);
-        int containCount = 0;
-        for (int i = 0; i < 9; i++) {
-            for (int j = 0; j < 9; j++) {
-                if (containNums[i][j]) {
-                    containCount++;
+        //Need to think about the threshold as getting this correct is very important!
+        Imgproc.HoughLines(largestBlobMat, linesMat, (double) 1, Math.PI / 180, 400);
+
+        //The Hough transform returns a series of lines in Polar format this is returned in the
+        //form of a Mat where each row is a vector where row[0] is rho and row[1] is theta
+        //See http://docs.opencv.org/2.4/doc/tutorials/imgproc/imgtrans/hough_lines/hough_lines.html
+        //and http://stackoverflow.com/questions/7925698/android-opencv-drawing-hough-lines/7975315#7975315
+        List<Line> houghLines = new ArrayList<>();
+        int lines = linesMat.rows();
+        for (int x = 0; x < lines; x++) {
+            double[] vec = linesMat.get(x, 0);
+            Vector vector = new Vector(vec[0], vec[1]);
+            Line line = new Line(vector, height, width);
+
+            houghLines.add(line);
+        }
+        return houghLines;
+    }
+
+    private Mat findLargestBlob(Mat thresholdMat) {
+        Mat largestBlobMat = thresholdMat.clone();
+        int height = largestBlobMat.height();
+        int width = largestBlobMat.width();
+
+        Point maxBlobOrigin = new Point(0, 0);
+
+        int maxBlobSize = 0;
+        Mat greyMask = new Mat(height + 2, width + 2, CvType.CV_8U, new Scalar(0, 0, 0));
+        Mat blackMask = new Mat(height + 2, width + 2, CvType.CV_8U, new Scalar(0, 0, 0));
+        for (int y = 0; y < height; y++) {
+            Mat row = largestBlobMat.row(y);
+            for (int x = 0; x < width; x++) {
+                double[] value = row.get(0, x);
+                Point currentPoint = new Point(x, y);
+
+                if (value[0] > 128) {
+                    int blobSize = Imgproc.floodFill(largestBlobMat, greyMask, currentPoint, new Scalar(64));
+                    if (blobSize > maxBlobSize) {
+                        Imgproc.floodFill(largestBlobMat, blackMask, maxBlobOrigin, new Scalar(0));
+                        maxBlobOrigin = currentPoint;
+                        maxBlobSize = blobSize;
+                    } else {
+                        Imgproc.floodFill(largestBlobMat, blackMask, currentPoint, new Scalar(0));
+                    }
                 }
             }
         }
-        Log.d("assert count", "containCount: " + containCount + ", listMats: "
-                + listmats.size());
-        if (containCount != listmats.size()) {
-            error = true;
-            return null;
-        }
+        Mat largeBlobMask = new Mat(height + 2, width + 2, CvType.CV_8U, new Scalar(0));
+        Imgproc.floodFill(largestBlobMat, largeBlobMask, maxBlobOrigin, new Scalar(255));
 
-        int[][] grid = storeNumsToGrid(containNums, listmats);
-        for (int i = 0; i < 9; i++) {
-            for (int j = 0; j < 9; j++) {
-                Log.d("Grid", i + "," + j + ": " + grid[i][j] + "");
-            }
+
+        return largestBlobMat;
+    }
+
+    private double colourLargestBlobWhite(Mat largestBlobMat, int height, int width, Point maxBlobOrigin) {
+        Mat largeBlobMask = new Mat(height + 2, width + 2, CvType.CV_8U, new Scalar(0));
+        return (double) Imgproc.floodFill(largestBlobMat, largeBlobMask, maxBlobOrigin, new Scalar(255));
+    }
+
+    private void eraseBlobIfLessThanOnePercentOfArea(Mat largestBlobMat, int height, int width, Point maxBlobOrigin, double largestSize) {
+        double area = height * width;
+        if(largestSize / area < 0.01) {
+            Mat eraseMask = new Mat(height + 2, width + 2, CvType.CV_8U, new Scalar(0));
+            Imgproc.floodFill(largestBlobMat, eraseMask, maxBlobOrigin, new Scalar(0));
         }
-        return grid;
     }
 
     public Mat byteArrayToMat(byte[][] byteArray) {

@@ -30,7 +30,7 @@ public class TessOCR {
      * class methods
      **/
     public TessOCR(Context context) {
-        DATA_PATH = Environment.getExternalStorageDirectory()
+        DATA_PATH = Environment.getExternalStorageDirectory().toString()
                 + "/Android/data/" + context.getPackageName() + "/Files/";
     }
 
