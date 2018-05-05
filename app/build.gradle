@@ -30,7 +30,10 @@ dependencies {
     implementation "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
     implementation "com.android.support:support-v4:$rootProject.supportLibraryVersion"
     implementation "com.android.support:design:$rootProject.supportLibraryVersion"
+    implementation "com.android.support:exifinterface:$rootProject.supportLibraryVersion"
     implementation "com.rmtheis:tess-two:$rootProject.tessTwoVersion"
+    implementation "com.jakewharton:butterknife:$rootProject.butterknifeVersion"
+    annotationProcessor "com.jakewharton:butterknife-compiler:$rootProject.butterknifeVersion"
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'

@@ -8,9 +8,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 
-import com.mutenlab.sudoit.MainActivity;
-import com.mutenlab.sudoit.R;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -36,8 +33,8 @@ public class SplashActivity extends Activity {
                 .getExternalStorageDirectory().toString()
                 + "/Android/data/"
                 + mContext.getPackageName() + "/Files/";
-        private static final String TAG_DIR_CREATE_SUCCESS = "directory created success";
-        private static final String TAG_DIR_CREATE_FAIL = "directory failed create";
+        private static final String TAG_DIR_CREATE_SUCCESS = "dir created success";
+        private static final String TAG_DIR_CREATE_FAIL = "dir failed create";
 
         @Override
         protected void onPreExecute() {

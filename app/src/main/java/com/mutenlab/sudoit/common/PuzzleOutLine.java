@@ -1,5 +1,7 @@
 package com.mutenlab.sudoit.common;
 
+import com.mutenlab.sudoit.model.Line;
+
 import org.opencv.core.Point;
 
 public class PuzzleOutLine {

@@ -26,13 +26,13 @@
         </activity>
         <activity
             android:screenOrientation="portrait"
-            android:name=".MainActivity"/>
+            android:name=".ui.MainActivity"/>
         <activity
             android:screenOrientation="portrait"
             android:name=".ui.CameraActivity"/>
         <activity
             android:screenOrientation="portrait"
-            android:name=".solver.SolverActivity"/>
+            android:name=".ui.SolverActivity"/>
     </application>
 
 </manifest>

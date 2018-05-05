@@ -1,4 +1,4 @@
-package com.mutenlab.sudoit.solver;
+package com.mutenlab.sudoit.ui;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -6,13 +6,14 @@ import android.view.View;
 import android.widget.GridView;
 
 import com.mutenlab.sudoit.R;
-import com.mutenlab.sudoit.common.Puzzle;
-import com.mutenlab.sudoit.common.PuzzleAdaptor;
+import com.mutenlab.sudoit.model.Puzzle;
 import com.mutenlab.sudoit.common.Solver;
 
 public class SolverActivity extends AppCompatActivity {
 
-    private static final String TAG = SolverActivity.class.getCanonicalName();
+    private static final String TAG = SolverActivity.class.getSimpleName();
+
+    public static final String UNSOLVED_SUDOKU_KEY = "unsolved_sudoku_key";
 
     private Puzzle puzzle;
 
@@ -26,14 +27,14 @@ public class SolverActivity extends AppCompatActivity {
 
     private void initPuzzleOrGetFromExtras() {
         Bundle bundle = getIntent().getExtras();
-        if (bundle != null && bundle.get("Puzzle") != null) {
-            puzzle = new Puzzle((Integer[][]) bundle.get("Puzzle"));
+        if (bundle != null && bundle.get(UNSOLVED_SUDOKU_KEY) != null) {
+            puzzle = new Puzzle((Integer[][]) bundle.get(UNSOLVED_SUDOKU_KEY));
         } else {
             puzzle = new Puzzle();
         }
     }
 
-    public void SolvePuzzle(View v) throws Exception {
+    public void SolvePuzzle(View v) {
         Solver puzzleSolver = new Solver(this.puzzle);
         Puzzle solvedPuzzle = puzzleSolver.solvePuzzle();
         updatePuzzle(solvedPuzzle);
@@ -41,8 +42,8 @@ public class SolverActivity extends AppCompatActivity {
 
     public void updatePuzzle(Puzzle puzzle) {
         this.puzzle = puzzle;
-        GridView gridView = (GridView) findViewById(R.id.sudokuGrid);
-        PuzzleAdaptor puzzleAdapter = new PuzzleAdaptor(this, this.puzzle);
+        GridView gridView = findViewById(R.id.sudokuGrid);
+        PuzzleAdapter puzzleAdapter = new PuzzleAdapter(this, this.puzzle);
         gridView.setAdapter(puzzleAdapter);
     }
 }

@@ -1,4 +1,4 @@
-package com.mutenlab.sudoit.common;
+package com.mutenlab.sudoit.ui;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -9,17 +9,19 @@ import android.widget.GridView;
 import android.widget.TextView;
 
 import com.mutenlab.sudoit.R;
+import com.mutenlab.sudoit.model.Point;
+import com.mutenlab.sudoit.model.Puzzle;
 
 
 /**
  * @author Ivan Cerrate.
  */
-public class PuzzleAdaptor extends BaseAdapter {
+public class PuzzleAdapter extends BaseAdapter {
 
     private final Context mContext;
     private Puzzle puzzle;
 
-    public PuzzleAdaptor(Context context, Puzzle puzzle) {
+    public PuzzleAdapter(Context context, Puzzle puzzle) {
         this.mContext = context;
         this.puzzle = puzzle;
     }

@@ -1,4 +1,4 @@
-package com.mutenlab.sudoit.common;
+package com.mutenlab.sudoit.model;
 
 import org.opencv.core.Point;
 

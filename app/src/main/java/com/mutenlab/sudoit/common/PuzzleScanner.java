@@ -88,7 +88,7 @@ public class PuzzleScanner {
     private Mat convertAndResizeBitmap(Bitmap bitmap) {
         Mat mat = new Mat(bitmap.getWidth(), bitmap.getHeight(), CvType.CV_8SC1);
         Utils.bitmapToMat(bitmap, mat);
-        Imgproc.resize(mat, mat, new Size(1080, 1440));
+        Imgproc.resize(mat, mat, new Size(1080, 1080));
         return mat;
     }
 

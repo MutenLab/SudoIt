@@ -1,4 +1,4 @@
-package com.mutenlab.sudoit.common;
+package com.mutenlab.sudoit.model;
 
 /**
  * @author Ivan Cerrate.

@@ -1,5 +1,7 @@
 package com.mutenlab.sudoit.common;
 
+import com.mutenlab.sudoit.util.Constants;
+
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -10,9 +12,6 @@ import org.opencv.utils.Converters;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.mutenlab.sudoit.common.Constants.BLACK;
-import static com.mutenlab.sudoit.common.Constants.THRESHOLD;
 
 class PuzzleExtractor {
 
@@ -83,9 +82,9 @@ class PuzzleExtractor {
             for (int x = 0; x < width; x++) {
                 double[] value = row.get(0, x);
                 Point currentPoint = new Point(x, y);
-                if (value[0] > THRESHOLD) {
+                if (value[0] > Constants.THRESHOLD) {
                     Mat blackMask = new Mat(height + 2, width + 2, CvType.CV_8U, new Scalar(0, 0, 0));
-                    Imgproc.floodFill(extractedPuzzleMat, blackMask, currentPoint, BLACK);
+                    Imgproc.floodFill(extractedPuzzleMat, blackMask, currentPoint, Constants.BLACK);
                     return;
                 }
             }

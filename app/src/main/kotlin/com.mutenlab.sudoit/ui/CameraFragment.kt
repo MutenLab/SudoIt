@@ -15,15 +15,13 @@ import android.util.Log
 import android.view.*
 import android.view.animation.Animation
 import android.view.animation.TranslateAnimation
+import android.widget.Toast
 import com.mutenlab.sudoit.R
-import com.mutenlab.sudoit.image.ImgManipulation
-import com.mutenlab.sudoit.solver.SolverActivity
+import com.mutenlab.sudoit.common.PuzzleScanner
 import kotlinx.android.synthetic.main.container_camera_mask.*
 import kotlinx.android.synthetic.main.fragment_camera.*
 import java.util.*
 import kotlin.math.roundToInt
-
-
 
 class CameraFragment : Fragment() {
 
@@ -99,7 +97,6 @@ class CameraFragment : Fragment() {
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
 
         takePhotoButton.setOnClickListener({
-            scannerAnimation.cancel()
             takePhoto()
         })
     }
@@ -137,35 +134,35 @@ class CameraFragment : Fragment() {
 
         val cropBitmap = Bitmap.createBitmap(bitmapTextureView, intArray[0]-width.toInt(), intArray[1]-width.toInt(), scannerLayoutParams.width+width.toInt()+width.toInt(), scannerLayoutParams.height+width.toInt()+width.toInt())
 
-        val imgManip = ImgManipulation(activity,
-                cropBitmap)
-        val unsolved = imgManip.processImage(test)
+        val unsolved = processSudokuImage(cropBitmap, context)
 
-        startSolverActivity(unsolved)
+        if (unsolved != null) {
+            startSolverActivity(unsolved)
+        } else {
+            Toast.makeText(context, "Board not found", Toast.LENGTH_LONG).show()
+        }
+    }
 
+    private fun processSudokuImage(bitmap: Bitmap, context: Context?): Array<Array<Int>>? {
+        try {
+            val puzzleScanner = PuzzleScanner(bitmap, context)
+            return puzzleScanner.puzzle
+        } catch (ex: Exception) {
+            Log.e(null, "Error extracting puzzle", ex)
+        }
+
+        return null
     }
 
     private fun startSolverActivity(unsolved: Array<Array<Int>>) {
         val bundle = Bundle()
-		bundle.putSerializable("Puzzle", unsolved)
+        bundle.putSerializable(SolverActivity.UNSOLVED_SUDOKU_KEY, unsolved)
 
-		val intent = Intent(activity, SolverActivity::class.java);
-		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-		intent.putExtras(bundle)
-		startActivity(intent)
+        val intent = Intent(activity, SolverActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.putExtras(bundle)
+        startActivity(intent)
         activity?.finish()
-    }
-
-    private fun toArray(input: Array<Array<Int>>): IntArray {
-        val output = IntArray(input[0].size * input.size)
-        var index = 0
-        for (y in input.indices) {
-            for (x in 0 until input[0].size) {
-                output[index] = input[x][y]
-                index++
-            }
-        }
-        return output
     }
 
     override fun onResume() {

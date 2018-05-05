@@ -6,8 +6,9 @@ import android.support.v7.app.AppCompatActivity
 import com.mutenlab.sudoit.R
 import org.opencv.android.OpenCVLoader
 
-
-
+/**
+ * @author Ivan Cerrate.
+ */
 class CameraActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

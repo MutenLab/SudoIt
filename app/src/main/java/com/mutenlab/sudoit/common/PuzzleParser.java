@@ -22,10 +22,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import static com.mutenlab.sudoit.common.Constants.BLACK;
-import static com.mutenlab.sudoit.common.Constants.GREY;
-import static com.mutenlab.sudoit.common.Constants.THRESHOLD;
-import static com.mutenlab.sudoit.common.Constants.WHITE;
+import static com.mutenlab.sudoit.util.Constants.BLACK;
+import static com.mutenlab.sudoit.util.Constants.GREY;
+import static com.mutenlab.sudoit.util.Constants.THRESHOLD;
+import static com.mutenlab.sudoit.util.Constants.WHITE;
 import static org.opencv.imgproc.Imgproc.THRESH_BINARY;
 
 class PuzzleParser {

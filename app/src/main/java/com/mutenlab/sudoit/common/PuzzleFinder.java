@@ -1,5 +1,9 @@
 package com.mutenlab.sudoit.common;
 
+import com.mutenlab.sudoit.model.Line;
+import com.mutenlab.sudoit.model.Vector;
+import com.mutenlab.sudoit.util.Constants;
+
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -11,9 +15,9 @@ import org.opencv.imgproc.Imgproc;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.mutenlab.sudoit.common.Constants.BLACK;
-import static com.mutenlab.sudoit.common.Constants.GREY;
-import static com.mutenlab.sudoit.common.Constants.WHITE;
+import static com.mutenlab.sudoit.util.Constants.BLACK;
+import static com.mutenlab.sudoit.util.Constants.GREY;
+import static com.mutenlab.sudoit.util.Constants.WHITE;
 import static org.opencv.imgproc.Imgproc.ADAPTIVE_THRESH_MEAN_C;
 import static org.opencv.imgproc.Imgproc.MARKER_TILTED_CROSS;
 import static org.opencv.imgproc.Imgproc.THRESH_BINARY;

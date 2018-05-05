@@ -1,4 +1,4 @@
-package com.mutenlab.sudoit.common;
+package com.mutenlab.sudoit.model;
 
 /**
  * @author Ivan Cerrate.
@@ -6,15 +6,15 @@ package com.mutenlab.sudoit.common;
 public class Puzzle {
 
     public static final int SIZE = 9;
-    static final int MAX_VALUE = 9;
-    static final int MIN_VALUE = 1;
+    public static final int MAX_VALUE = 9;
+    public static final int MIN_VALUE = 1;
     private Integer[][] Numbers;
 
     public Puzzle() {
         initNumbers();
     }
 
-    Puzzle(Puzzle toCopy) {
+    public Puzzle(Puzzle toCopy) {
         initNumbers();
         for (int x = 0; x < Puzzle.SIZE; x++) {
             for (int y = 0; y < Puzzle.SIZE; y++) {
@@ -49,7 +49,7 @@ public class Puzzle {
         Numbers[point.x][point.y] = value;
     }
 
-    void eraseNumber(Point point) throws IllegalArgumentException {
+    public void eraseNumber(Point point) throws IllegalArgumentException {
         AssertValidIndexes(point);
         setNumber(point, null);
     }
@@ -66,7 +66,7 @@ public class Puzzle {
         return Numbers[point.x][point.y];
     }
 
-    Point findNextUnassignedLocation() {
+    public Point findNextUnassignedLocation() {
         for (int x = 0; x < Puzzle.SIZE; x++) {
             for (int y = 0; y < Puzzle.SIZE; y++) {
                 Integer number = this.Numbers[x][y];
@@ -78,7 +78,7 @@ public class Puzzle {
         return null;
     }
 
-    Boolean noConflicts(Point point, Integer number) {
+    public Boolean noConflicts(Point point, Integer number) {
         if (isRowConflict(point.y, number)) return false;
         return !isColumnConflict(point.x, number);
     }

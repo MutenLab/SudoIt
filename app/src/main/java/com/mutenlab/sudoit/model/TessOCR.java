@@ -15,15 +15,7 @@ public class TessOCR {
 
     private boolean isEnded = false;
 
-    public final String TRAINED_DATA_DIRECTORY = "tessdata/";
-
-    public final String TRAINED_DATA_FILENAME = "eng.traineddata";
-
     private String DATA_PATH;
-
-    public static final String TAG_DIR_CREATE_SUCCESS = "directory created success";
-
-    public static final String TAG_DIR_CREATE_FAIL = "directory failed create";
 
     /**
      * constructor to obtain context+bitmap and initializes DATA_PATH needed for
