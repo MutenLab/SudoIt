@@ -1,14 +1,20 @@
 package com.mutenlab.sudoit.ui;
 
+import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.Display;
 import android.view.View;
-import android.widget.GridView;
 
 import com.mutenlab.sudoit.R;
-import com.mutenlab.sudoit.model.Puzzle;
 import com.mutenlab.sudoit.common.Solver;
+import com.mutenlab.sudoit.model.Puzzle;
 
+/**
+ * @author icerrate
+ */
 public class SolverActivity extends AppCompatActivity {
 
     private static final String TAG = SolverActivity.class.getSimpleName();
@@ -42,8 +48,17 @@ public class SolverActivity extends AppCompatActivity {
 
     public void updatePuzzle(Puzzle puzzle) {
         this.puzzle = puzzle;
-        GridView gridView = findViewById(R.id.sudokuGrid);
-        PuzzleAdapter puzzleAdapter = new PuzzleAdapter(this, this.puzzle);
-        gridView.setAdapter(puzzleAdapter);
+        RecyclerView sudokuRecyclerView = findViewById(R.id.sudoku);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, Puzzle.SIZE);
+        sudokuRecyclerView.setLayoutManager(gridLayoutManager);
+        SudokuAdapter sudokuAdapter = new SudokuAdapter(puzzle, calculateItemWidth(Puzzle.SIZE));
+        sudokuRecyclerView.setAdapter(sudokuAdapter);
+    }
+
+    private int calculateItemWidth(int itemsPerRow) {
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        return size.x/itemsPerRow;
     }
 }

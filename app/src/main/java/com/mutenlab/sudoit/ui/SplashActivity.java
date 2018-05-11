@@ -13,6 +13,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * @author icerrate
+ */
 public class SplashActivity extends Activity {
 
     private Context mContext;

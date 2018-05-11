@@ -17,7 +17,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
- * @author Ivan Cerrate.
+ * @author icerrate
  */
 public class MainActivity extends AppCompatActivity {
 

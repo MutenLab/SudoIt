@@ -11,10 +11,9 @@
         android:onClick="SolvePuzzle"
         android:text="Solve Puzzle" />
 
-<GridView
-    android:id="@+id/sudokuGrid"
+<android.support.v7.widget.RecyclerView
+    android:id="@+id/sudoku"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:numColumns="9"/>
+    android:layout_height="match_parent"/>
 
 </LinearLayout>

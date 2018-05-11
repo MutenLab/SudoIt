@@ -166,9 +166,7 @@ class PuzzleParser {
     }
 
     private String getTrainingDataAssetFileName() {
-
         return TESS_DATA_DIR + "/" + TESS_TRAINING_FILE;
-
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
