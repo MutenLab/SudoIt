@@ -1,6 +1,6 @@
 # SudoIt
 
-Sudoku solver with OCR. Simple and beautiful implementation in Kotlin for didactics purposes.
+Sudoku solver with OCR. Simple and beautiful implementation in Kotlin and Java for didactics purposes.
 
 ## Getting Started
 
