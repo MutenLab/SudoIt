@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="line">1dp</dimen>
+    <dimen name="small_margin">8dp</dimen>
+    <dimen name="margin">16dp</dimen>
+    <dimen name="large_margin">32dp</dimen>
+    <dimen name="logo_dimen">55dp</dimen>
+    <dimen name="camera_shooter">68dp</dimen>
+    <dimen name="scanner_bar">6dp</dimen>
+    <dimen name="progress_elevation">6dp</dimen>
+
+    <dimen name="text_16">16sp</dimen>
+
+</resources>

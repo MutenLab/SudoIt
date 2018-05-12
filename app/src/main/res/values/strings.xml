@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">SudoIt</string>
+    <string name="solver_title">Solver</string>
+
+    <string name="open_camera">Open Scanner</string>
+    <string name="solve_puzzle">Solve Puzzle</string>
+
+    <string name="welcome_title">Welcome to SudoIt</string>
+    <string name="welcome_text">This is an open source project created to explain how you can use the camera for element\'s recognition and image processing. Enjoy!</string>
+    <string name="camera_request_rationale">Camera access is required</string>
+    <string name="camera_tip">Place sudoku board inside the scanner area</string>
+
+    <string name="board_not_found">Board not found</string>
 </resources>
