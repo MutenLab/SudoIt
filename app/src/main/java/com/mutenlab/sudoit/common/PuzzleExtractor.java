@@ -16,7 +16,9 @@ import java.util.List;
 class PuzzleExtractor {
 
     private Mat thresholdMat;
+
     private Mat largestBlobMat;
+
     private PuzzleOutLine puzzleOutline;
 
     private Mat extractedPuzzleMat;
@@ -30,7 +32,6 @@ class PuzzleExtractor {
     Mat getExtractedPuzzleMat() {
         if (extractedPuzzleMat == null)
             generateExtractedPuzzleMat();
-
         return extractedPuzzleMat;
     }
 
@@ -45,7 +46,7 @@ class PuzzleExtractor {
 
         Mat outputMat = new Mat((int) size, (int) size, CvType.CV_8U);
 
-        List<Point> source = new ArrayList<Point>();
+        List<Point> source = new ArrayList<>();
         source.add(puzzleOutline.bottomLeft);
         source.add(puzzleOutline.topLeft);
         source.add(puzzleOutline.topRight);
@@ -56,7 +57,7 @@ class PuzzleExtractor {
         Point topLeft = new Point(0, size);
         Point topRight = new Point(size, size);
         Point bottomRight = new Point(size, 0);
-        List<Point> dest = new ArrayList<Point>();
+        List<Point> dest = new ArrayList<>();
         dest.add(bottomLeft);
         dest.add(topLeft);
         dest.add(topRight);

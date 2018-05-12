@@ -6,9 +6,14 @@ package com.mutenlab.sudoit.model;
 public class Puzzle {
 
     public static final int SIZE = 9;
+
     public static final int MAX_VALUE = 9;
+
     public static final int MIN_VALUE = 1;
-    private Integer[][] Numbers;
+
+    private Integer[][] initNumbers;
+
+    private Integer[][] numbers;
 
     public Puzzle() {
         initNumbers();
@@ -18,7 +23,8 @@ public class Puzzle {
         initNumbers();
         for (int x = 0; x < Puzzle.SIZE; x++) {
             for (int y = 0; y < Puzzle.SIZE; y++) {
-                Numbers[x][y] = toCopy.getNumber(new Point(x, y));
+                initNumbers[x][y] = toCopy.getNumber(new Point(x, y));
+                numbers[x][y] = toCopy.getNumber(new Point(x, y));
             }
         }
     }
@@ -27,13 +33,15 @@ public class Puzzle {
         initNumbers();
         for (int x = 0; x < Puzzle.SIZE; x++) {
             for (int y = 0; y < Puzzle.SIZE; y++) {
-                Numbers[x][y] = problem[x][y];
+                initNumbers[x][y] = problem[x][y];
+                numbers[x][y] = problem[x][y];
             }
         }
     }
 
     private void initNumbers() {
-        this.Numbers = new Integer[SIZE][SIZE];
+        this.initNumbers = new Integer[SIZE][SIZE];
+        this.numbers = new Integer[SIZE][SIZE];
     }
 
     private void AssertValidIndexes(Point point) throws IllegalArgumentException {
@@ -46,7 +54,7 @@ public class Puzzle {
     public void setNumber(Point point, Integer value) throws IllegalArgumentException {
         AssertValidIndexes(point);
         assertValidValue(value);
-        Numbers[point.x][point.y] = value;
+        numbers[point.x][point.y] = value;
     }
 
     public void eraseNumber(Point point) throws IllegalArgumentException {
@@ -63,13 +71,18 @@ public class Puzzle {
 
     public Integer getNumber(Point point) throws IllegalArgumentException {
         AssertValidIndexes(point);
-        return Numbers[point.x][point.y];
+        return numbers[point.x][point.y];
+    }
+
+    public Integer getInitNumber(Point point) throws IllegalArgumentException {
+        AssertValidIndexes(point);
+        return initNumbers[point.x][point.y];
     }
 
     public Point findNextUnassignedLocation() {
         for (int x = 0; x < Puzzle.SIZE; x++) {
             for (int y = 0; y < Puzzle.SIZE; y++) {
-                Integer number = this.Numbers[x][y];
+                Integer number = this.numbers[x][y];
                 if (number == null || number.intValue() == -1) {
                     return new Point(x, y);
                 }
@@ -85,7 +98,7 @@ public class Puzzle {
 
     private boolean isRowConflict(int y, Integer number) {
         for (int x = 0; x < Puzzle.SIZE; x++) {
-            Integer pointVal = this.Numbers[x][y];
+            Integer pointVal = this.numbers[x][y];
             if (pointVal == null) continue;
             if (pointVal.intValue() == number.intValue())
                 return true;
@@ -95,7 +108,7 @@ public class Puzzle {
 
     private boolean isColumnConflict(int x, Integer number) {
         for (int y = 0; y < Puzzle.SIZE; y++) {
-            Integer pointVal = this.Numbers[x][y];
+            Integer pointVal = this.numbers[x][y];
             if (pointVal == null) continue;
             if (pointVal.intValue() == number.intValue())
                 return true;

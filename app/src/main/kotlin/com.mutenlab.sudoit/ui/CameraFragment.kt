@@ -156,7 +156,7 @@ class CameraFragment : Fragment() {
 
     private fun startSolverActivity(unsolved: Array<Array<Int>>) {
         val bundle = Bundle()
-        bundle.putSerializable(SolverActivity.UNSOLVED_SUDOKU_KEY, unsolved)
+        bundle.putSerializable(SolverActivity.PUZZLE_KEY, unsolved)
 
         val intent = Intent(activity, SolverActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

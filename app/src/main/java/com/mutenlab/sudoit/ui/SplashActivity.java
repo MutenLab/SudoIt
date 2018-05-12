@@ -1,12 +1,13 @@
 package com.mutenlab.sudoit.ui;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+
+import com.mutenlab.sudoit.BuildConfig;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -18,25 +19,26 @@ import java.io.InputStream;
  */
 public class SplashActivity extends Activity {
 
-    private Context mContext;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        mContext = getApplicationContext();
         super.onCreate(savedInstanceState);
 
         new OCRInitAsync().execute();
     }
 
-    private class OCRInitAsync extends AsyncTask<Void, Void, Void> {
+    public class OCRInitAsync extends AsyncTask<Void, Void, Void> {
 
         private static final String TRAINED_DATA_DIRECTORY = "tessdata/";
+
         private static final String TRAINED_DATA_FILENAME = "eng.traineddata";
+
         private final String DATA_PATH = Environment
                 .getExternalStorageDirectory().toString()
                 + "/Android/data/"
-                + mContext.getPackageName() + "/Files/";
+                + BuildConfig.APPLICATION_ID + "/Files/";
+
         private static final String TAG_DIR_CREATE_SUCCESS = "dir created success";
+
         private static final String TAG_DIR_CREATE_FAIL = "dir failed create";
 
         @Override
@@ -44,29 +46,18 @@ public class SplashActivity extends Activity {
             super.onPreExecute();
         }
 
-        // copies tess OCR traineddata file from assets to external storage
         @Override
         protected Void doInBackground(Void... arg) {
             copyTessFileToStorage();
             return null;
         }
 
-        // method called after doInBackground
         @Override
         protected void onPostExecute(Void ready) {
             super.onPostExecute(ready);
-            // start main activity
-            Intent i = new Intent(SplashActivity.this, MainActivity.class);
-            startActivity(i);
-
-            finish();
-
+            launchHome();
         }
 
-        /**
-         * copies traineddata file from assets folder to external storage
-         * (destination is DATA_PATH)
-         **/
         private void copyTessFileToStorage() {
             try {
                 // initializes file and parent directory of file
@@ -77,7 +68,7 @@ public class SplashActivity extends Activity {
                 // checks if file already exists
                 if (!file.exists()) {
                     // copies file in assets folder to stream
-                    InputStream in = mContext.getAssets().open(
+                    InputStream in = getAssets().open(
                             TRAINED_DATA_DIRECTORY + TRAINED_DATA_FILENAME);
 
                     // create parent directories
@@ -107,5 +98,12 @@ public class SplashActivity extends Activity {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void launchHome() {
+        Intent i = new Intent(SplashActivity.this, MainActivity.class);
+        startActivity(i);
+
+        finish();
     }
 }

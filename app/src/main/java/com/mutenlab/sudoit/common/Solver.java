@@ -3,9 +3,6 @@ package com.mutenlab.sudoit.common;
 import com.mutenlab.sudoit.model.Point;
 import com.mutenlab.sudoit.model.Puzzle;
 
-/**
- * @author Ivan Cerrate.
- */
 public class Solver {
     private Puzzle originalPuzzle;
 

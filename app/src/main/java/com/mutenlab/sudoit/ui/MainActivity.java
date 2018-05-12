@@ -6,27 +6,25 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.widget.Button;
 
 import com.mutenlab.sudoit.R;
 import com.mutenlab.sudoit.util.PermissionHelper;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * @author icerrate
  */
 public class MainActivity extends AppCompatActivity {
 
-    private final static String TAG = MainActivity.class.getSimpleName();
-
     private final static int REQUEST_CAMERA_PERMISSION = 100;
 
-    @BindView(R.id.start_camera)
-    Button startCamera;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -34,26 +32,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        startCamera.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                checkCameraPermissions();
-            }
-        });
+        toolbar.setTitle(R.string.app_name);
+        setSupportActionBar(toolbar);
     }
 
-    private void checkCameraPermissions() {
+    @OnClick(R.id.start_camera)
+    public void startCameraClick(View view) {
         String[] permission = new String[]{Manifest.permission.CAMERA};
 
         if (!PermissionHelper.checkPermissions(this, permission)) {
-            Log.i(TAG, "Permission to media denied");
             ActivityCompat.requestPermissions(this, permission, REQUEST_CAMERA_PERMISSION);
         } else {
-            launchCamera();
+            startActivity(new Intent(this, CameraActivity.class));
         }
-    }
-
-    private void launchCamera() {
-        startActivity(new Intent(this, CameraActivity.class));
     }
 }

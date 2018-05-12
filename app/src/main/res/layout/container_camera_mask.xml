@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
+    <android.support.v7.widget.LinearLayoutCompat
         android:id="@+id/topOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -14,16 +14,16 @@
         android:background="@color/translucent_black"
         android:orientation="vertical">
 
-        <TextView
+        <android.support.v7.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            style="@style/TextAppearance.AppCompat.Title"
             android:gravity="center"
             android:text="@string/camera_tip"
             android:textAlignment="center"
-            android:textColor="@color/translucent_white_smoke"
-            android:textSize="22sp" />
+            android:textColor="@color/translucent_white_smoke" />
 
-    </LinearLayout>
+    </android.support.v7.widget.LinearLayoutCompat>
 
     <View
         android:id="@+id/startOverlay"
@@ -44,7 +44,7 @@
         <View
             android:id="@+id/scannerBar"
             android:layout_width="match_parent"
-            android:layout_height="6dp"
+            android:layout_height="@dimen/scanner_bar"
             android:background="@color/colorAccent" />
 
     </RelativeLayout>
@@ -65,10 +65,10 @@
         android:layout_toStartOf="@id/endOverlay"
         android:background="@color/translucent_black" />
 
-    <ImageView
+    <android.support.v7.widget.AppCompatImageView
         android:id="@+id/test"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
 </RelativeLayout>

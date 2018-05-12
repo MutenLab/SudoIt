@@ -56,31 +56,6 @@ public class PuzzleScanner {
         }
     }
 
-    public Bitmap getThreshold() {
-        Mat thresholdMat = getPuzzleFinder().getThresholdMat();
-        return convertMatToBitMap(thresholdMat);
-    }
-
-    public Bitmap getLargestBlob() {
-        Mat largestBlobMat = getPuzzleFinder().getLargestBlobMat();
-        return convertMatToBitMap(largestBlobMat);
-    }
-
-    public Bitmap getHoughLines() {
-        Mat houghLinesMat = getPuzzleFinder().getHoughLinesMat();
-        return convertMatToBitMap(houghLinesMat);
-    }
-
-    public Bitmap getOutLine() throws PuzzleNotFoundException {
-        Mat outLineMat = getPuzzleFinder().getOutLineMat();
-        return convertMatToBitMap(outLineMat);
-    }
-
-    public Bitmap extractPuzzle() throws PuzzleNotFoundException {
-        Mat extractedPuzzleMat = getPuzzleExtractor().getExtractedPuzzleMat();
-        return convertMatToBitMap(extractedPuzzleMat);
-    }
-
     public Integer[][] getPuzzle() throws IOException, PuzzleNotFoundException {
         return getPuzzleParser().getPuzzle();
     }
@@ -90,11 +65,5 @@ public class PuzzleScanner {
         Utils.bitmapToMat(bitmap, mat);
         Imgproc.resize(mat, mat, new Size(1080, 1080));
         return mat;
-    }
-
-    private Bitmap convertMatToBitMap(Mat matToConvert) {
-        Bitmap bitmap = Bitmap.createBitmap(matToConvert.cols(), matToConvert.rows(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(matToConvert, bitmap);
-        return bitmap;
     }
 }

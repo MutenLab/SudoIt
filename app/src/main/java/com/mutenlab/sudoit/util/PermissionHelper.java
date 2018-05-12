@@ -5,7 +5,7 @@ import android.content.pm.PackageManager;
 import android.support.v4.content.ContextCompat;
 
 /**
- * @author Ivan Cerrate.
+ * @author icerrate
  */
 public class PermissionHelper {
 
@@ -17,5 +17,4 @@ public class PermissionHelper {
         }
         return true;
     }
-
 }
