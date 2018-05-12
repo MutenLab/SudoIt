@@ -280,6 +280,7 @@ class CameraFragment : Fragment() {
             if (unsolved != null) {
                 startSolverActivity(unsolved)
             } else {
+                progressBar.visibility = View.GONE
                 Toast.makeText(context, R.string.board_not_found, Toast.LENGTH_LONG).show()
             }
         }
