@@ -7,6 +7,7 @@ import android.graphics.Bitmap
 import android.graphics.Point
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.*
+import android.os.AsyncTask
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
@@ -97,7 +98,7 @@ class CameraFragment : Fragment() {
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
 
         takePhotoButton.setOnClickListener({
-            takePhoto()
+            ImageProcessingTask().execute()
         })
     }
 
@@ -119,28 +120,6 @@ class CameraFragment : Fragment() {
             override fun onAnimationRepeat(animation: Animation) {}
         })
         scannerBar.startAnimation(scannerAnimation)
-    }
-
-    private fun takePhoto() {
-        val bitmapTextureView = previewTextureView.bitmap
-        val intArray = IntArray(2)
-        scanner.getLocationOnScreen(intArray)
-        val scannerLayoutParams = scanner.layoutParams
-
-        val display = activity?.windowManager?.defaultDisplay
-        val point = Point()
-        display?.getSize(point)
-        val width = point.x * 0
-
-        val cropBitmap = Bitmap.createBitmap(bitmapTextureView, intArray[0]-width.toInt(), intArray[1]-width.toInt(), scannerLayoutParams.width+width.toInt()+width.toInt(), scannerLayoutParams.height+width.toInt()+width.toInt())
-
-        val unsolved = processSudokuImage(cropBitmap, context)
-
-        if (unsolved != null) {
-            startSolverActivity(unsolved)
-        } else {
-            Toast.makeText(context, "Board not found", Toast.LENGTH_LONG).show()
-        }
     }
 
     private fun processSudokuImage(bitmap: Bitmap, context: Context?): Array<Array<Int>>? {
@@ -269,6 +248,40 @@ class CameraFragment : Fragment() {
             Log.e(TAG, e.toString())
         } catch (e: InterruptedException) {
             Log.e(TAG, "Open camera device interrupted while opened")
+        }
+    }
+
+    inner class ImageProcessingTask: AsyncTask<Array<Array<Int>>?, Array<Array<Int>>?, Array<Array<Int>>?>() {
+
+        override fun onPreExecute() {
+            super.onPreExecute()
+            progressBar.visibility = View.VISIBLE
+        }
+
+        override fun doInBackground(vararg p0: Array<Array<Int>>?): Array<Array<Int>>? {
+            val bitmapTextureView = previewTextureView.bitmap
+            val intArray = IntArray(2)
+            scanner.getLocationOnScreen(intArray)
+            val scannerLayoutParams = scanner.layoutParams
+
+            val display = activity?.windowManager?.defaultDisplay
+            val point = Point()
+            display?.getSize(point)
+
+            val cropBitmap = Bitmap.createBitmap(bitmapTextureView, intArray[0], intArray[1],
+                    scannerLayoutParams.width, scannerLayoutParams.height)
+
+            return processSudokuImage(cropBitmap, context)
+        }
+
+        override fun onPostExecute(unsolved: Array<Array<Int>>?) {
+            super.onPostExecute(unsolved)
+
+            if (unsolved != null) {
+                startSolverActivity(unsolved)
+            } else {
+                Toast.makeText(context, R.string.board_not_found, Toast.LENGTH_LONG).show()
+            }
         }
     }
 }

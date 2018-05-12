@@ -10,4 +10,5 @@
     <string name="camera_request_rationale">Camera access is required</string>
     <string name="camera_tip">Place sudoku board inside the scanner area</string>
 
+    <string name="board_not_found">Board not found</string>
 </resources>

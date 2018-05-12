@@ -23,4 +23,14 @@
         app:backgroundTint="@color/colorAccent"
         app:fabCustomSize="@dimen/camera_shooter" />
 
+    <FrameLayout
+        android:id="@+id/progressBar"
+        style="@style/AppTheme.ProgressBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ProgressBar style="@style/AppTheme.ProgressBar" />
+
+    </FrameLayout>
+
 </RelativeLayout>
