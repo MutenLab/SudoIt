@@ -13,6 +13,7 @@ import static java.lang.Math.sin;
  */
 
 public class Line {
+
     public enum Orientation {
         horizontal,
         vertical,
@@ -20,12 +21,8 @@ public class Line {
     }
 
     public Point origin;
-    public Point destination;
 
-    public Line(Point origin, Point destination) {
-        this.origin = origin;
-        this.destination = destination;
-    }
+    public Point destination;
 
     public Line(Vector vector, int height, int width) {
         Point origin = new Point();

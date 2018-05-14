@@ -25,10 +25,15 @@ import static org.opencv.imgproc.Imgproc.THRESH_BINARY;
 class PuzzleFinder {
 
     private Mat originalMat;
+
     private Mat greyMat;
+
     private Mat thresholdMat;
+
     private Mat largestBlobMat;
+
     private Mat houghLinesMat;
+
     private Mat outLineMat;
 
     PuzzleFinder(Mat mat) {
@@ -228,7 +233,6 @@ class PuzzleFinder {
 
     Mat getOutLineMat() throws PuzzleNotFoundException {
         if (outLineMat == null)
-
             generateOutlineMat();
         return outLineMat;
     }

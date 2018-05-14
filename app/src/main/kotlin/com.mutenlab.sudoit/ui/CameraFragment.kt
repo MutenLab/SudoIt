@@ -27,11 +27,52 @@ import kotlin.math.roundToInt
 class CameraFragment : Fragment() {
 
     companion object {
+
         private val TAG = CameraFragment::class.qualifiedName
+
         private const val MAX_PREVIEW_WIDTH = 1280
+
         private const val MAX_PREVIEW_HEIGHT = 720
+
+        private const val SCANNER_DURATION = 2000
+
         @JvmStatic
         fun newInstance() = CameraFragment()
+
+        class ImageProcessingTask(private val cameraFragment: CameraFragment) : AsyncTask<Array<Array<Int>>?, Array<Array<Int>>?, Array<Array<Int>>?>() {
+
+            override fun onPreExecute() {
+                super.onPreExecute()
+                cameraFragment.progressBar.visibility = View.VISIBLE
+            }
+
+            override fun doInBackground(vararg p0: Array<Array<Int>>?): Array<Array<Int>>? {
+                val bitmapTextureView = cameraFragment.previewTextureView.bitmap
+                val intArray = IntArray(2)
+                cameraFragment.scanner.getLocationOnScreen(intArray)
+                val scannerLayoutParams = cameraFragment.scanner.layoutParams
+
+                val display = cameraFragment.activity?.windowManager?.defaultDisplay
+                val point = Point()
+                display?.getSize(point)
+
+                val cropBitmap = Bitmap.createBitmap(bitmapTextureView, intArray[0], intArray[1],
+                        scannerLayoutParams.width, scannerLayoutParams.height)
+
+                return cameraFragment.processSudokuImage(cropBitmap, cameraFragment.context)
+            }
+
+            override fun onPostExecute(unsolved: Array<Array<Int>>?) {
+                super.onPostExecute(unsolved)
+
+                if (unsolved != null) {
+                    cameraFragment.startSolverActivity(unsolved)
+                } else {
+                    cameraFragment.progressBar.visibility = View.GONE
+                    Toast.makeText(cameraFragment.context, R.string.board_not_found, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
     }
 
     private lateinit var captureSession: CameraCaptureSession
@@ -98,14 +139,14 @@ class CameraFragment : Fragment() {
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
 
         takePhotoButton.setOnClickListener({
-            ImageProcessingTask().execute()
+            ImageProcessingTask(this).execute()
         })
     }
 
     private fun startScannerBarAnimation() {
         val distance = scanner.layoutParams.height.toFloat() - scannerBar.layoutParams.height.toFloat()
         scannerAnimation = TranslateAnimation(0f, 0f, 0f, distance)
-        scannerAnimation.duration = 2000
+        scannerAnimation.duration = SCANNER_DURATION.toLong()
         scannerAnimation.repeatMode = Animation.REVERSE
         scannerAnimation.repeatCount = Animation.INFINITE
         scannerAnimation.fillAfter = true
@@ -129,7 +170,6 @@ class CameraFragment : Fragment() {
         } catch (ex: Exception) {
             Log.e(null, "Error extracting puzzle", ex)
         }
-
         return null
     }
 
@@ -171,7 +211,7 @@ class CameraFragment : Fragment() {
         cameraDevice.createCaptureSession(Arrays.asList(surface),
                 object: CameraCaptureSession.StateCallback(){
                     override fun onConfigureFailed(session: CameraCaptureSession?) {
-                        Log.e(TAG, "creating capture session failded!")
+                        Log.e(TAG, "creating capture session failed!")
                     }
 
                     override fun onConfigured(session: CameraCaptureSession?) {
@@ -248,41 +288,6 @@ class CameraFragment : Fragment() {
             Log.e(TAG, e.toString())
         } catch (e: InterruptedException) {
             Log.e(TAG, "Open camera device interrupted while opened")
-        }
-    }
-
-    inner class ImageProcessingTask: AsyncTask<Array<Array<Int>>?, Array<Array<Int>>?, Array<Array<Int>>?>() {
-
-        override fun onPreExecute() {
-            super.onPreExecute()
-            progressBar.visibility = View.VISIBLE
-        }
-
-        override fun doInBackground(vararg p0: Array<Array<Int>>?): Array<Array<Int>>? {
-            val bitmapTextureView = previewTextureView.bitmap
-            val intArray = IntArray(2)
-            scanner.getLocationOnScreen(intArray)
-            val scannerLayoutParams = scanner.layoutParams
-
-            val display = activity?.windowManager?.defaultDisplay
-            val point = Point()
-            display?.getSize(point)
-
-            val cropBitmap = Bitmap.createBitmap(bitmapTextureView, intArray[0], intArray[1],
-                    scannerLayoutParams.width, scannerLayoutParams.height)
-
-            return processSudokuImage(cropBitmap, context)
-        }
-
-        override fun onPostExecute(unsolved: Array<Array<Int>>?) {
-            super.onPostExecute(unsolved)
-
-            if (unsolved != null) {
-                startSolverActivity(unsolved)
-            } else {
-                progressBar.visibility = View.GONE
-                Toast.makeText(context, R.string.board_not_found, Toast.LENGTH_LONG).show()
-            }
         }
     }
 }

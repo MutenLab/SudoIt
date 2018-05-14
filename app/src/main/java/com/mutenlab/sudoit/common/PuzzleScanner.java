@@ -13,16 +13,19 @@ import org.opencv.imgproc.Imgproc;
 import java.io.IOException;
 
 public class PuzzleScanner {
+
     private final Mat originalMat;
+
     private final Context context;
 
     private PuzzleFinder puzzleFinder;
+
     private PuzzleExtractor puzzleExtractor;
+
     private PuzzleParser puzzleParser;
 
     public PuzzleScanner(Bitmap bitmap, Context context) throws Exception {
         initOpencv();
-
         this.context = context;
         this.originalMat = convertAndResizeBitmap(bitmap);
     }

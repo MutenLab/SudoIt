@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 
 /**
  * @author icerrate
@@ -23,10 +24,12 @@ public class SplashActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        new OCRInitAsync().execute();
+        new OCRInitAsync(this).execute();
     }
 
-    public class OCRInitAsync extends AsyncTask<Void, Void, Void> {
+    public static class OCRInitAsync extends AsyncTask<Void, Void, Void> {
+
+        private WeakReference<SplashActivity> activityReference;
 
         private static final String TRAINED_DATA_DIRECTORY = "tessdata/";
 
@@ -40,6 +43,10 @@ public class SplashActivity extends Activity {
         private static final String TAG_DIR_CREATE_SUCCESS = "dir created success";
 
         private static final String TAG_DIR_CREATE_FAIL = "dir failed create";
+
+        private OCRInitAsync(SplashActivity context) {
+            activityReference = new WeakReference<>(context);
+        }
 
         @Override
         protected void onPreExecute() {
@@ -55,10 +62,15 @@ public class SplashActivity extends Activity {
         @Override
         protected void onPostExecute(Void ready) {
             super.onPostExecute(ready);
-            launchHome();
+            //Launch MainActivity
+            SplashActivity activity = activityReference.get();
+            Intent i = new Intent(activity, MainActivity.class);
+            activity.startActivity(i);
+            activity.finish();
         }
 
         private void copyTessFileToStorage() {
+            SplashActivity activity = activityReference.get();
             try {
                 // initializes file and parent directory of file
                 File dir = new File(DATA_PATH + TRAINED_DATA_DIRECTORY);
@@ -68,7 +80,7 @@ public class SplashActivity extends Activity {
                 // checks if file already exists
                 if (!file.exists()) {
                     // copies file in assets folder to stream
-                    InputStream in = getAssets().open(
+                    InputStream in = activity.getAssets().open(
                             TRAINED_DATA_DIRECTORY + TRAINED_DATA_FILENAME);
 
                     // create parent directories
@@ -98,12 +110,5 @@ public class SplashActivity extends Activity {
                 e.printStackTrace();
             }
         }
-    }
-
-    public void launchHome() {
-        Intent i = new Intent(SplashActivity.this, MainActivity.class);
-        startActivity(i);
-
-        finish();
     }
 }

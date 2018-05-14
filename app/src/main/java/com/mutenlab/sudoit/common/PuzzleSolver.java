@@ -3,10 +3,11 @@ package com.mutenlab.sudoit.common;
 import com.mutenlab.sudoit.model.Point;
 import com.mutenlab.sudoit.model.Puzzle;
 
-public class Solver {
+public class PuzzleSolver {
+
     private Puzzle originalPuzzle;
 
-    public Solver(Puzzle puzzle) {
+    public PuzzleSolver(Puzzle puzzle) {
         this.originalPuzzle = puzzle;
     }
 
@@ -26,9 +27,9 @@ public class Solver {
                 if (solve(workingPuzzle))
                     return true;
                 else
-                    workingPuzzle.eraseNumber(workingPoint); // undo & try again
+                    workingPuzzle.eraseNumber(workingPoint);
             }
         }
-        return false; // this triggers backtracking from early decisions
+        return false;
     }
 }

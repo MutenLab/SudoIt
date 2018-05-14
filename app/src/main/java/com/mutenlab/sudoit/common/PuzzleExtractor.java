@@ -23,13 +23,13 @@ class PuzzleExtractor {
 
     private Mat extractedPuzzleMat;
 
-    PuzzleExtractor(Mat thresholdMat, Mat largestBlobMat, PuzzleOutLine puzzleOutLine) {
+    public PuzzleExtractor(Mat thresholdMat, Mat largestBlobMat, PuzzleOutLine puzzleOutLine) {
         this.thresholdMat = thresholdMat;
         this.largestBlobMat = largestBlobMat;
         this.puzzleOutline = puzzleOutLine;
     }
 
-    Mat getExtractedPuzzleMat() {
+    public Mat getExtractedPuzzleMat() {
         if (extractedPuzzleMat == null)
             generateExtractedPuzzleMat();
         return extractedPuzzleMat;
@@ -73,7 +73,6 @@ class PuzzleExtractor {
                 Imgproc.INTER_CUBIC);
         extractedPuzzleMat = outputMat;
     }
-
 
     private void RemovePuzzleOutline() {
         int height = thresholdMat.height();

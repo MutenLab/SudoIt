@@ -31,19 +31,26 @@ import static org.opencv.imgproc.Imgproc.THRESH_BINARY;
 class PuzzleParser {
 
     private static final int NUMBER_BORDER = 5;
+
     private static final String TESS_LANG = "eng";
+
     private static final String TESS_DATA_DIR = "tessdata";
+
     private static final String TESS_TRAINING_FILE = "eng.traineddata";
 
     private static final int PUZZLE_SIZE = 9;
 
     private Context context;
+
     private Mat puzzleMat;
+
     private int puzzleHeight;
+
     private int puzzleWidth;
+
     private TessBaseAPI tessBaseAPI;
 
-    PuzzleParser(Mat puzzleMat, Context context) throws IOException {
+    public PuzzleParser(Mat puzzleMat, Context context) throws IOException {
         this.puzzleMat = puzzleMat;
         this.puzzleHeight = puzzleMat.height();
         this.puzzleWidth = puzzleMat.width();
@@ -52,7 +59,7 @@ class PuzzleParser {
         setUpTessTwo();
     }
 
-    Mat getMatForPosition(int x, int y) {
+    private Mat getMatForPosition(int x, int y) {
 
         Mat numberMat = extractNumberMatFromPuzzle(x, y);
         numberMat = cleanUpNumberMat(numberMat);
